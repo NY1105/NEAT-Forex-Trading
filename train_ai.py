@@ -6,7 +6,7 @@ import time
 import pickle
 
 
-class TradeMarket:
+class Trade:
     def __init__(self, window, width, height):
         self.game = Game(window, width, height)
         self.ball = self.game.ball
@@ -15,7 +15,7 @@ class TradeMarket:
 
     def test_ai(self, net):
         """
-        Test the AI against a human player by passing a NEAT neural network
+        Test the AI by passing a brain (Visualize case)
         """
         clock = pygame.time.Clock()
         run = True
@@ -68,7 +68,7 @@ class TradeMarket:
 
             game_info = self.game.loop()
 
-            self.move_ai_paddles(net1, net2)
+            self.decision_to_actions(net1, net2)
 
             if draw:
                 self.game.draw(draw_score=False, draw_hits=True)
@@ -82,27 +82,27 @@ class TradeMarket:
 
         return False
 
-    def move_ai_paddles(self, net1, net2):
+    def decision_to_actions(self, net):
         """
         Determine where to move the left and the right paddle based on the two 
-        neural networks that control them. 
+        neural networks that control them. <--- Decision to Actions
         """
-        players = [(self.genome1, net1, self.left_paddle, True), (self.genome2, net2, self.right_paddle, False)]
-        for (genome, net, paddle, left) in players:
-            output = net.activate(
-                (paddle.y, abs(paddle.x - self.ball.x), self.ball.y))
-            decision = output.index(max(output))
+        paddle = self.game.left_paddle#//
+        
+        genome = self.genome
+        output = net.activate((paddle.y, abs(paddle.x - self.ball.x), self.ball.y))
+        decision = output.index(max(output))
 
-            valid = True
-            if decision == 0:  # Don't move
-                genome.fitness -= 0.01  # we want to discourage this
-            elif decision == 1:  # Move up
-                valid = self.game.move_paddle(left=left, up=True)
-            else:  # Move down
-                valid = self.game.move_paddle(left=left, up=False)
+        valid = True
+        if decision == 0:  # Don't move
+            genome.fitness -= 0.01  # we want to discourage this
+        elif decision == 1:  # Move up
+            valid = self.game.move_paddle(left=left, up=True)
+        else:  # Move down
+            valid = self.game.move_paddle(left=left, up=False)
 
-            if not valid:  # If the movement makes the paddle go off the screen punish the AI
-                genome.fitness -= 1
+        if not valid:  # If the movement makes the paddle go off the screen punish the AI
+            genome.fitness -= 1
 
     def calculate_fitness(self, game_info, duration):
         self.genome1.fitness += game_info.left_hits + duration
@@ -122,7 +122,7 @@ def eval_genomes(genomes, config):
         genome1.fitness = 0
         for genome_id2, genome2 in genomes[min(i+1, len(genomes) - 1):]:
             genome2.fitness = 0 if genome2.fitness == None else genome2.fitness
-            pong = TradeMarket(win, width, height)
+            pong = Trade(win, width, height)
 
             force_quit = pong.train_ai(genome1, genome2, config, draw=True)
             if force_quit:
@@ -142,7 +142,7 @@ def run_neat(config):
         pickle.dump(winner, f)
 
 
-def test_best_network(config):
+def test_best_network(config): #Run with best brain
     with open("best.pickle", "rb") as f:
         winner = pickle.load(f)
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
@@ -150,7 +150,7 @@ def test_best_network(config):
     width, height = 700, 500
     win = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Pong")
-    pong = TradeMarket(win, width, height)
+    pong = Trade(win, width, height)
     pong.test_ai(winner_net)
 
 

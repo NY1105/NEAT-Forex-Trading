@@ -82,7 +82,7 @@ class PongGame:
 
         return False
 
-    def move_ai_paddles(self, net1, net2):
+    def move_ai_paddles(self, net1, net2): #decision_to_actions
         """
         Determine where to move the left and the right paddle based on the two 
         neural networks that control them. 
