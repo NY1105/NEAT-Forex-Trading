@@ -1,4 +1,10 @@
-import trade
+class Trade:
+
+    def open_order(cash_total, action):  # open order - - buy/sell
+        return cash_total
+
+    def close_order(cash_total, action):  # calculating profit - - close
+        return cash_total
 
 
 class Player:
@@ -12,4 +18,7 @@ class Player:
         return self.__cash_total
 
     def order_execute(self):  # the execution call for the trade
-        pass
+        if self.action == 'buy' or 'sell':
+            Trade.open_order(self.__cash_total, self.action)
+        else:
+            Trade.close_order(self.__cash_total, self.action)
