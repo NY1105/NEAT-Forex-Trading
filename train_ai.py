@@ -6,7 +6,7 @@ import time
 import pickle
 
 
-class TradeMarket:
+class Trade:
     def __init__(self, window, width, height):
         self.game = Game(window, width, height)
         self.ball = self.game.ball
@@ -122,7 +122,7 @@ def eval_genomes(genomes, config):
         genome1.fitness = 0
         for genome_id2, genome2 in genomes[min(i+1, len(genomes) - 1):]:
             genome2.fitness = 0 if genome2.fitness == None else genome2.fitness
-            pong = TradeMarket(win, width, height)
+            pong = Trade(win, width, height)
 
             force_quit = pong.train_ai(genome1, genome2, config, draw=True)
             if force_quit:
@@ -150,7 +150,7 @@ def test_best_network(config): #Run with best brain
     width, height = 700, 500
     win = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Pong")
-    pong = TradeMarket(win, width, height)
+    pong = Trade(win, width, height)
     pong.test_ai(winner_net)
 
 
