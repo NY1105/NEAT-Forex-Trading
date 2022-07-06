@@ -1,9 +1,11 @@
+from indicators import Indicators
 from pong import Game
 import pygame
 import neat
 import os
 import time
 import pickle
+import player
 
 
 class Trade:
@@ -12,6 +14,7 @@ class Trade:
         self.ball = self.game.ball
         self.left_paddle = self.game.left_paddle
         self.right_paddle = self.game.right_paddle
+        self.names = ['Hay', 'Leo']
 
     def test_ai(self, net):
         """
@@ -52,7 +55,7 @@ class Trade:
         These AI's will play against eachother to determine their fitness.
         """
         run = True
-        start_time = time.time()
+        cur_time = 0
 
         net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
         net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
@@ -60,15 +63,14 @@ class Trade:
         self.genome2 = genome2
 
         max_hits = 50
-
+        
+        p1 = player.Player(self.names[0], Indicators.get_df)
+        p2 = player.Player(self.names[1], Indicators.get_df)
         while run:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return True
 
             game_info = self.game.loop()
 
-            self.decision_to_actions(net1, net2)
+            self.decision_to_actions(net1, cur_time)
 
             if draw:
                 self.game.draw(draw_score=False, draw_hits=True)
@@ -82,7 +84,7 @@ class Trade:
 
         return False
 
-    def decision_to_actions(self, net):
+    def decision_to_actions(self, net, time):
         """
         Determine where to move the left and the right paddle based on the two 
         neural networks that control them. <--- Decision to Actions
@@ -90,13 +92,17 @@ class Trade:
         paddle = self.game.left_paddle#//
         
         genome = self.genome
-        output = net.activate((paddle.y, abs(paddle.x - self.ball.x), self.ball.y))
+
+        indicators = Indicators(time)
+
+        output = net.activate((indicators.get_volume(), indicators.get_close_price()))
         decision = output.index(max(output))
 
         valid = True
         if decision == 0:  # Don't move
             genome.fitness -= 0.01  # we want to discourage this
         elif decision == 1:  # Move up
+            
             valid = self.game.move_paddle(left=left, up=True)
         else:  # Move down
             valid = self.game.move_paddle(left=left, up=False)
