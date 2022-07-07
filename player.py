@@ -1,31 +1,35 @@
-class Trade:
-
-    def open_order(cash_total, action, record, index, df):  # open order - - buy/sell
-        if record[action][0] != 0:
-            record[action][1] = df['Close'].iloc[index]
-            return
-        record[action][0] = df['Close'].iloc[index]
-
-    def close_order(cash_total, action, record, index, df):  # calculating profit - - close
-        if record[action][1] == 0:
-            return cash_total
-        cash_total += cash_total * (record[action][1] - record[action][0])
-        return cash_total
-
-
 class Player:
 
     def __init__(self, name, df):
-        self.name = name                               # name       :  the name of the player
-        self.record = {'buy': [0, 0], 'sell': [0, 0]}  # record     :  store the row of the trading
-        self.__cash_total = 1000                       # cash total :  the initial cash amount of the player
-        self.df = df                                   # df         :  it is the dataframe
+        self.name = name                # name       :  the name of the player
+        self.last_order_index = -1      # record     :  store the row of the trading in excel
+        self.cash_total = 1000000       # cash total :  the initial cash amount of the player
+        self.size = 1000                # lot size   :  for each lot the player invest with size of 10
+        self.df = df                    # df         :  it is the dataframe
+        self.position = 0               # position   :  -1 sell, 0 no order, 1 buy
 
-    def get_cash_total(self):  # the cash flow of the player
-        return self.__cash_total
+    def buy(self, index):  # open buy order
+        if self.position == 0:              # if no order exist
+            self.last_order_index = index   # record the index during order made
+            self.position = self.size
+        else:
+            print("order existed, cannot open buy order")  # error exist
 
-    def order_execute(self, action, index):  # the execution call for the trade
-        if self.action in ('buy', 'sell'):
-            Trade.open_order(self.__cash_total, action, self.record, index, self.df)
-        elif self.action == 'close':
-            self.__cash_total = Trade.close_order(self.__cash_total, action, self.record, index, self.df)
+    def sell(self, index):  # open sell order
+        if self.position == 0:              # if no order exists
+            self.last_order_index = index   # record the index during order made
+            self.position = -self.size
+        else:
+            print("order existed, cannot open sell order")  # error exist
+
+    def close_order(self, index):  # calculating profit during trade
+        if self.position > 0:  # close buy order
+            last_price = self.df['Close'].iloc[self.last_order_index]
+            curr_price = self.df['Close'].iloc[self.index]
+            profit = self.position * (curr_price - last_price)  # calculation of buy profit
+        elif self.position < 0:  # close sell order
+            last_price = self.df['Close'].iloc[self.last_order_index]
+            curr_price = self.df['Close'].iloc[self.index]
+            profit = self.position * (curr_price - last_price)  # calculation of sell profit
+        self.cash_total += profit
+        self.position = 0
