@@ -61,12 +61,12 @@ def test_best_network(config): #Run with best brain
     with open("best.pickle", "rb") as f:
         winner = pickle.load(f)
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-
-    width, height = 700, 500
+    Trade.test_ai(winner_net)
+    
+    # width, height = 700, 500
     # win = pygame.display.set_mode((width, height))
     # pygame.display.set_caption("Pong")
-    trade = Trade(width, height)
-    trade.test_ai(winner_net)
+    # trade = Trade(width, height)
 
 def main():
     p1 = player.Player("Leo", indicators.df)
