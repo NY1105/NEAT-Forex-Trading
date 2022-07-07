@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
 import pylab
-fig = pylab.figure(figsize=[4, 4],  # Inches
+fig = pylab.figure(figsize=[8, 4],  # Inches
                    dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
                    )
 ax = fig.gca()
@@ -83,19 +83,24 @@ def test_best_network(config):  # Run with best brain
 
 
 def main():
-    p1 = player.Player("Leo", indicators.df)
-    p1.buy(0)
-#     draw()
+    pygame.init()
+    surface = pygame.display.set_mode((1200, 400))
+    color = (240, 255, 255)
+    surface.fill(color)
+    screen = pygame.display.get_surface()
+    size = canvas.get_width_height()
+    surf = pygame.image.fromstring(raw_data, size, "RGB")
+    font = pygame.font.SysFont("monospace", 15)
+    label = font.render("Data", True, (0, 0, 0))
+    screen.blit(label, (800, 0))
 
-
-# def draw():  # this plot the drawing of the period
-#     fig = plt.figure(figsize=(13, 5))
-#     price = indicators.df['Close']
-#     ax = fig.add_subplot()
-#     ax.set_ylabel('Price')
-#     ax.set_xlabel('Number Of Days')
-#     plt.plot(price)
-#     plt.show()
+    screen.blit(surf, (0, 0))
+    pygame.display.flip()
+    crashed = False
+    while not crashed:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                crashed = True
 
 
 if __name__ == '__main__':
