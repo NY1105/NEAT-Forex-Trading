@@ -5,6 +5,7 @@ import neat
 import pickle
 import os
 import matplotlib
+from tabulate import tabulate
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
 import pylab
@@ -91,9 +92,12 @@ def main():
     size = canvas.get_width_height()
     surf = pygame.image.fromstring(raw_data, size, "RGB")
     font = pygame.font.SysFont("monospace", 15)
-    label = font.render("Data", True, (0, 0, 0))
-    screen.blit(label, (800, 0))
-
+    buy_label = font.render("Buy Order Opened at ", True, (0, 0, 0))
+    sell_label = font.render("Sell Order Opened at ", True, (0, 0, 0))
+    profit_label = font.render("Current profit: ", True, (0, 0, 0))
+    screen.blit(buy_label, (800, 0))
+    screen.blit(sell_label, (800, 50))
+    screen.blit(profit_label, (800, 100))
     screen.blit(surf, (0, 0))
     pygame.display.flip()
     crashed = False
