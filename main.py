@@ -1,115 +1,44 @@
+from numpy import outer
 import player
 import indicators
-import time
 import neat
-import pickle
 import os
-import matplotlib
-from tabulate import tabulate
-matplotlib.use("Agg")
-import matplotlib.backends.backend_agg as agg
-import pylab
-fig = pylab.figure(figsize=[8, 4],  # Inches
-                   dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
-                   )
-ax = fig.gca()
-ax.plot(indicators.df['Close'])
-canvas = agg.FigureCanvasAgg(fig)
-canvas.draw()
-renderer = canvas.get_renderer()
-raw_data = renderer.tostring_rgb()
-import pygame
-from pygame.locals import *
-
-
-class Trade:
-
-    def __init__(self):
-        pass
-
-    def train_ai(self, genome, config, draw=False):
-        """
-        Train the AI by passing two NEAT neural networks and the NEAt config object.
-        These AI's will play against eachother to determine their fitness.
-        """
-        run = True
-        start_time = time.time()
-        net1 = neat.nn.FeedForwardNetwork.create(genome, config)
-        self.genome = genome
 
 
 def eval_genomes(genomes, config):
-    """
-    Run each genome against eachother one time to determine the fitness.
-    """
-    width, height = 700, 500
-    win = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Pong")
+    global ge, nets, points, player_list
+    points = 0                               # this is the point of the ai
+    ge = []                                  # this store each generation in the list
+    nets = []                                # this put the generation into the neat trading
+    player_list = []                         # this store a list of player
+    for genome in genomes:
+        player_list.append(player.Player())  # put the Broker to broker list
+        ge.append(genome)                    # add the geneme to the neat
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
+        nets.append(net)                     # add to the generation
+        genome.fitness = 0                   # init the fitness as 0
 
-    for i, (genome_id1, genome1) in enumerate(genomes):
-        print(round(i / len(genomes) * 100), end=" ")
-        genome1.fitness = 0
-        for genome_id2, genome2 in genomes[min(i + 1, len(genomes) - 1):]:
-            genome2.fitness = 0 if genome2.fitness == None else genome2.fitness
-            pong = Trade(win, width, height)
+    if len(player_list) == 0:                # check if the list empty
+        return
 
-            force_quit = pong.train_ai(genome1, genome2, config, draw=True)
-            if force_quit:
-                quit()
-
-
-def run_neat(config):
-    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-85')
-    p = neat.Population(config)
-    p.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(1))
-
-    winner = p.run(eval_genomes, 50)
-    with open("best.pickle", "wb") as f:
-        pickle.dump(winner, f)
+    for index, player_in_list in enumerate(player_list):
+        output = nets[index].activate()
 
 
-def test_best_network(config):  # Run with best brain
-    with open("best.pickle", "rb") as f:
-        winner = pickle.load(f)
-    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    Trade.test_ai(winner_net)
-
-    # width, height = 700, 500
-    # win = pygame.display.set_mode((width, height))
-    # pygame.display.set_caption("Pong")
-    # trade = Trade(width, height)
-
-
-def main():
-    pygame.init()
-    surface = pygame.display.set_mode((1200, 400))
-    color = (240, 255, 255)
-    surface.fill(color)
-    screen = pygame.display.get_surface()
-    size = canvas.get_width_height()
-    surf = pygame.image.fromstring(raw_data, size, "RGB")
-    font = pygame.font.SysFont("monospace", 15)
-    buy_label = font.render("Buy Order Opened at ", True, (0, 0, 0))
-    sell_label = font.render("Sell Order Opened at ", True, (0, 0, 0))
-    profit_label = font.render("Current profit: ", True, (0, 0, 0))
-    screen.blit(buy_label, (800, 0))
-    screen.blit(sell_label, (800, 50))
-    screen.blit(profit_label, (800, 100))
-    screen.blit(surf, (0, 0))
-    pygame.display.flip()
-    crashed = False
-    while not crashed:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                crashed = True
+def run(config_path):
+    global pop
+    config = neat.config.Config(  # this config the neat file
+        neat.DefaultGenome,
+        neat.DefaultReproduction,
+        neat.DefaultSpeciesSet,
+        neat.DefaultStagnation,
+        config_path
+    )
+    pop = neat.Population(config)   # this put the generation to the neat population
+    pop.run(eval_genomes, 50)       # run 50 generation
 
 
 if __name__ == '__main__':
-    main()
-    # config_path = os.path.join(os.path.dirname(__file__), 'config.txt')
-    # config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
-    # run_neat(config)
-    # test_best_network(config)
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, 'config.txt')
+    run(config_path)

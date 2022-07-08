@@ -1,6 +1,6 @@
 from textwrap import indent
 import pandas as pd
-from utils import * 
+from utils import *
 
 
 df = pd.read_csv('EURUSD.csv')
@@ -26,11 +26,15 @@ class Indicators:
         return sigmoid((df['Close'].iloc[time - lookback] - df['Close'].iloc[time]) / lookback)
 
     def price_diff_with_prev(time):
-        if time<1:return 0
-        return ((df['Close'].iloc[time] - df['Close'].iloc[time-1]) / df['Close'].iloc[time-1])
+        if time < 1:
+            return 0
+        return ((df['Close'].iloc[time] - df['Close'].iloc[time - 1]) / df['Close'].iloc[time - 1])
 
     def get_rsi(time):
         return df['RSI'].iloc[time]
 
     def get_sma_diff_pct(time):
         return (df['FastSMA'].iloc[time] - df['SlowSMA'].iloc[time]) / df['SlowSMA'].iloc[time]
+
+    def get_sma_diff(time):
+        return abs(df['FastSMA'].iloc[time] - df['SlowSMA'].iloc[time])
