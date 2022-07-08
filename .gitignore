@@ -3,9 +3,10 @@
 
 # virtual environment
 venv/
-data/dukascopy
+
 
 # training data set
+# data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
