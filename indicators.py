@@ -7,7 +7,8 @@ df = pd.read_csv('EURUSD.csv')
 df['FastSMA'] = df['Close'].rolling(7, min_periods=7).mean().fillna(df['Close'])
 df['SlowSMA'] = df['Close'].rolling(20, min_periods=20).mean().fillna(df['Close'])
 df['RSI'] = rsi(df)
-
+df.dropna(inplace=True)
+df.reset_index(drop=True, inplace=True)
 
 class Indicators:
 
