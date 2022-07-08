@@ -1,42 +1,22 @@
-from textwrap import indent
 import pandas as pd
-from utils import *
-
-
-df = pd.read_csv('EURUSD.csv')
-df['FastSMA'] = df['Close'].rolling(7, min_periods=7).mean().fillna(df['Close'])
-df['SlowSMA'] = df['Close'].rolling(20, min_periods=20).mean().fillna(df['Close'])
-df['RSI'] = rsi(df)
-df.dropna(inplace=True)
-df.reset_index(drop=True, inplace=True)
 
 
 class Indicators:
+    def __init__(self):
+        self.df = pd.read_csv('EURUSD.csv')
+        self.df['FastSMA'] = self.df['Close'].rolling(50, min_periods=50).mean().fillna(self.df['Close'])
+        self.df['SlowSMA'] = self.df['Close'].rolling(100, min_periods=100).mean().fillna(self.df['Close'])
+        self.df.dropna(inplace=True)
+        self.df.reset_index(drop=True, inplace=True)
 
-    def get_df():
-        return df
+    def get_df(self):
+        return self.df
 
-    def get_volume(time):
-        return df['Volume(Millions)'].iloc[time]
+    def get_volume(self, index):
+        return self.df['Volume(Millions)'].iloc[index]
 
-    def get_close_price(time):
-        return df['Close'].iloc[time]
+    def get_ma_diff(self, index):
+        return self.df['FastSMA'].iloc[index] - self.df['SlowSMA'].iloc[index]
 
-    def trend(time, lookback=10):
-        if time < lookback:
-            return 0
-        return sigmoid((df['Close'].iloc[time - lookback] - df['Close'].iloc[time]) / lookback)
-
-    def price_diff_with_prev(time):
-        if time < 1:
-            return 0
-        return ((df['Close'].iloc[time] - df['Close'].iloc[time - 1]) / df['Close'].iloc[time - 1])
-
-    def get_rsi(time):
-        return df['RSI'].iloc[time]
-
-    def get_sma_diff_pct(time):
-        return (df['FastSMA'].iloc[time] - df['SlowSMA'].iloc[time]) / df['SlowSMA'].iloc[time]
-
-    def get_sma_diff(time):
-        return abs(df['FastSMA'].iloc[time] - df['SlowSMA'].iloc[time])
+    def get_close(self, index):
+        return self.df['Close'].iloc[index]

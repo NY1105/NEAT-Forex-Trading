@@ -1,7 +1,6 @@
 class Player:
 
-    def __init__(self, name, df):
-        self.name = name                # name       :  the name of the player
+    def __init__(self, df):
         self.last_order_index = -1      # record     :  store the row of the trading in excel
         self.cash_total = 1000000       # cash total :  the initial cash amount of the player
         self.size = 100000              # lot size   :  for each lot the player invest with size of 10
@@ -41,12 +40,11 @@ class Player:
         if self.position > 0:  # close buy order
             last_price = self.df['Close'].iloc[self.last_order_index]  # get the open order price
             curr_price = self.df['Close'].iloc[index]  # get the close order price
-            profit = self.position * (curr_price - last_price - self.comission * 2)  # calculation of buy profit
+            self.cash_total += self.position * (curr_price - last_price - self.comission * 2)  # calculation of buy profit
         elif self.position < 0:  # close sell order
             last_price = self.df['Close'].iloc[self.last_order_index]  # get the open order price
             curr_price = self.df['Close'].iloc[index]  # get the close order price
-            profit = self.position * (curr_price - last_price + self.comission * 2)  # calculation of sell profit
-        self.cash_total += profit   # adding the profit (earning or losing)
+            self.cash_total += self.position * (curr_price - last_price + self.comission * 2)  # calculation of sell profit
         self.position = 0           # change back to no order position
         print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]))
 
