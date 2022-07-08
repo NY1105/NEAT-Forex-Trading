@@ -1,2 +1,3 @@
 neat-python==0.92
-yfinance==0.1.72
+# yfinance==0.1.72
+pygame
