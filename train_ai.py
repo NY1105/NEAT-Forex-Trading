@@ -78,7 +78,7 @@ class Trade:
             pygame.display.update()
 
             duration = time.time() - start_time
-            if game_info.left_score == 1 or game_info.right_score == 1 or game_info.left_hits >= max_hits:
+            if game_info.left_hits >= max_hits:
                 self.calculate_fitness(game_info, duration)
                 break
 
@@ -95,7 +95,7 @@ class Trade:
 
         indicators = Indicators(time)
 
-        output = net.activate((indicators.get_volume(), indicators.get_close_price()))
+        output = net.activate((indicators.get_volume(), indicators.get_close_price(), indicators.get_SMA_diff()))
         decision = output.index(max(output))
 
         valid = True
