@@ -6,12 +6,12 @@ import os
 
 class Trader:
     def __init__(self):
-        self.indicators = Indicators()
-        self.df = self.indicators.get_df()
-        self.trader = player.Player(self.df)
+        self.indicators = Indicators()  # get the indicator object
+        self.df = self.indicators.get_df()  # get the dataframe
+        self.trader = player.Player(self.df)  # set the trader
 
     def train_ai(self, genome, config):
-        net = neat.nn.FeedForwardNetwork.create(genome, config)
+        net = neat.nn.FeedForwardNetwork.create(genome, config)  # create the neat network
         self.genome = genome
         for day in range(len(self.df)):
             self.ai_move(net, day)
@@ -35,8 +35,7 @@ class Trader:
 
     def calculate_fitness(self):
         self.genome.fitness += self.trader.cash_total
-        # print(self.trader.cash_total)
-        # print('complete')
+        print(self.genome.fitness)
 
 
 def run_neat(config_path):
@@ -49,10 +48,10 @@ def run_neat(config_path):
 
 def eval_genomes(genomes, config):
     for i, (genome_id, genome) in enumerate(genomes):
-        genome.fitness = 0
         t = Trader()
         print(i)
         for _ in genomes[min(i + 1, len(genomes) - 1):]:
+            genome.fitness = 0
             t.train_ai(genome, config)
 
 
