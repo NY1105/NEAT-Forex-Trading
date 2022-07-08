@@ -51,8 +51,8 @@ def eval_genomes(genomes, config):
     for i, (genome_id, genome) in enumerate(genomes):
         genome.fitness = 0
         t = Trader()
-        for genome_id2, genome2 in genomes[min(i + 1, len(genomes) - 1):]:
-            genome2.fitness = 0 if genome2.fitness == None else genome2.fitness
+        print(i)
+        for _ in genomes[min(i + 1, len(genomes) - 1):]:
             t.train_ai(genome, config)
 
 
