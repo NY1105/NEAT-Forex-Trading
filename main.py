@@ -23,19 +23,20 @@ class Trader:
                                self.indicators.get_close(day),
                                self.indicators.get_ma_diff(day)))
         decision = output.index(max(output))
+        print(decision)
         if decision == 0:  # Don't move
-            self.genome.fitness -= 0.5
+            self.genome.fitness -= 0.02
         elif decision == 1:  # open buy
             self.trader.buy(day)
-            self.genome.fitness += 0.1
+            self.genome.fitness += 0.01
 
-        else:  # close order
+        elif decision == 2:  # close order
             self.trader.close(day)
-            self.genome.fitness += 0.1
+            self.genome.fitness += 0.01
 
     def calculate_fitness(self):
         self.genome.fitness += self.trader.cash_total
-        print(self.genome.fitness)
+        # print(self.genome.fitness)
 
 
 def run_neat(config_path):
@@ -49,10 +50,9 @@ def run_neat(config_path):
 def eval_genomes(genomes, config):
     for i, (genome_id, genome) in enumerate(genomes):
         t = Trader()
-        print(i)
-        for _ in genomes[min(i + 1, len(genomes) - 1):]:
-            genome.fitness = 0
-            t.train_ai(genome, config)
+        # print(i)
+        genome.fitness = 0
+        t.train_ai(genome, config)
 
 
 if __name__ == '__main__':
