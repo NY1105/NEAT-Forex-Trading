@@ -13,8 +13,8 @@ import time
 import os
 
 # default date range
-START_DATE = date(2022, 6, 20)
-END_DATE = date(2022, 6, 24)
+START_DATE = date(2022, 6, 13)
+END_DATE = date(2022, 6, 17)
 
 # default parameters for data source
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -105,11 +105,8 @@ if __name__ == '__main__':
     #         pass
     for symbol in SYMBOLS:
         csv_path = CSV_ROOT / f'{symbol}.csv'
-        if not os.path.isfile(csv_path):
-                with open(csv_path, "w") as csv_file:
-                    csv_writer = csv.writer(csv_file)
-                    csv_writer.writerow(['Datetime','Open', 'High', 'Low', 'Close', 'Volume'])
+        if os.path.isfile(csv_path):
+            os.remove(csv_path)
 
-    
     for date in date_xrange(START_DATE, END_DATE):
         get_minute_bars_from_bi5_candlestick(date)
