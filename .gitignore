@@ -3,6 +3,7 @@
 
 # virtual environment
 venv/
+data/dukascopy
 
 # training data set
 train/
