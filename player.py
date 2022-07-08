@@ -10,7 +10,7 @@ class Player:
         self.comission = 0.000035       # comission  :  comission in pip / size
 
     def buy(self, index):  # open buy order
-        if self.cash_total < self.size * (self.df['Close'].iloc[index] + self.comission):
+        if self.cash_total < self.size * (self.df['Close'].iloc[index] + self.comission):  # check if the player has enough money
             print("Not enough money for trading")
             return False
 
@@ -18,13 +18,13 @@ class Player:
             print("order existed, cannot open buy order")  # error exist
             return False
 
-        self.last_order_index = index   # record the index during order made
+        self.last_order_index = index   # record the index(excel row) during order made
         self.position = self.size
         print("Open buy order successed with close price " + str(self.df['Close'].iloc[index]))
         return True
 
     def sell(self, index):  # open sell order
-        if self.cash_total < self.size * (self.df['Close'].iloc[index] + self.comission):
+        if self.cash_total < self.size * (self.df['Close'].iloc[index] + self.comission):  # check if the player has enough money
             print("Not enough money for trading")
             return False
 
@@ -32,7 +32,7 @@ class Player:
             print("order existed, cannot open buy order")  # error exist
             return False
 
-        self.last_order_index = index   # record the index during order made
+        self.last_order_index = index   # record the index(excel row) during order made
         self.position = -self.size
         print("Open buy order successed with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]))
         return True
@@ -46,8 +46,8 @@ class Player:
             last_price = self.df['Close'].iloc[self.last_order_index]  # get the open order price
             curr_price = self.df['Close'].iloc[index]  # get the close order price
             profit = self.position * (curr_price - last_price + self.comission * 2)  # calculation of sell profit
-        self.cash_total += profit
-        self.position = 0
+        self.cash_total += profit   # adding the profit (earning or losing)
+        self.position = 0           # change back to no order position
         print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]))
 
     def print_cash(self):
