@@ -16,7 +16,7 @@ import shutil
 
 ##################################################################################################################################
 #params
-START_DATE = date(2022, 7, 5)
+START_DATE = date(2022, 7, 4)
 END_DATE = date(2022, 7, 5)
 SYMBOLS = ['USDJPY'] # ['AAPL.US/USD'] 
 PRICE_TYPES = ['BID']
@@ -97,9 +97,7 @@ def get_minute_bars_from_bi5_candlestick(date):
             df.to_csv(csv_path, mode='a', header=False)
             break
 
-
-if __name__ == '__main__':
-
+def main():
     for symbol in SYMBOLS:
         stripped = symbol.replace('/','')
         stripped = stripped.replace('.','')
@@ -120,3 +118,6 @@ if __name__ == '__main__':
     
     duka_root = DATA_ROOT / 'dukascopy'
     shutil.rmtree(duka_root)
+
+if __name__ == '__main__':
+    main()
