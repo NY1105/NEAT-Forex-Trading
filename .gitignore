@@ -5,7 +5,7 @@
 venv/
 
 # training data set
-train/
+data/dukascopy
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
