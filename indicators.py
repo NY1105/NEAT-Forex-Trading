@@ -2,8 +2,9 @@ from textwrap import indent
 import pandas as pd
 from utils import * 
 
+SYMBOL = 'EURUSD'
 
-df = pd.read_csv('EURUSD.csv')
+df = pd.read_csv(f'data/csv/{SYMBOL}.csv')
 df['FastSMA'] = df['Close'].rolling(7, min_periods=7).mean().fillna(df['Close'])
 df['SlowSMA'] = df['Close'].rolling(20, min_periods=20).mean().fillna(df['Close'])
 df['RSI'] = rsi(df)
