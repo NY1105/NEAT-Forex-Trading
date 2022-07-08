@@ -27,6 +27,39 @@ class Trade:
     def __init__(self):
         pass
 
+    def test_ai(self, net):
+        """
+        Test the AI against a human player by passing a NEAT neural network
+        """
+        clock = pygame.time.Clock()
+        run = True
+        while run:
+            clock.tick(60)
+            game_info = self.game.loop()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    break
+
+            output = net.activate((self.right_paddle.y, abs(
+                self.right_paddle.x - self.ball.x), self.ball.y))
+            decision = output.index(max(output))
+
+            if decision == 1:  # AI moves up
+                self.game.move_paddle(left=False, up=True)
+            elif decision == 2:  # AI moves down
+                self.game.move_paddle(left=False, up=False)
+
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_w]:
+                self.game.move_paddle(left=True, up=True)
+            elif keys[pygame.K_s]:
+                self.game.move_paddle(left=True, up=False)
+
+            self.game.draw(draw_score=True)
+            pygame.display.update()
+
     def train_ai(self, genome, config, draw=False):
         """
         Train the AI by passing two NEAT neural networks and the NEAt config object.
@@ -36,6 +69,32 @@ class Trade:
         start_time = time.time()
         net1 = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
+
+    def move_ai_paddles(self, net1, net2): #decision_to_actions
+        """
+        Determine where to move the left and the right paddle based on the two 
+        neural networks that control them. 
+        """
+        players = [(self.genome1, net1, self.left_paddle, True), (self.genome2, net2, self.right_paddle, False)]
+        for (genome, net, paddle, left) in players:
+            output = net.activate(
+                (paddle.y, abs(paddle.x - self.ball.x), self.ball.y))
+            decision = output.index(max(output))
+
+            valid = True
+            if decision == 0:  # Don't move
+                genome.fitness -= 0.01  # we want to discourage this
+            elif decision == 1:  # Move up
+                valid = self.game.move_paddle(left=left, up=True)
+            else:  # Move down
+                valid = self.game.move_paddle(left=left, up=False)
+
+            if not valid:  # If the movement makes the paddle go off the screen punish the AI
+                genome.fitness -= 1
+
+    def calculate_fitness(self, game_info, duration):
+        self.genome1.fitness += game_info.left_hits + duration
+        self.genome2.fitness += game_info.right_hits + duration
 
 
 def eval_genomes(genomes, config):

@@ -1,12 +1,14 @@
+from player import Player
 from indicators import Indicators
-from pong import Game
-import pygame
-import neat
-import os
 import time
+import neat
 import pickle
-import player
-
+import os
+import matplotlib
+from tabulate import tabulate
+matplotlib.use("Agg")
+import matplotlib.backends.backend_agg as agg
+import pylab
 
 class Trade:
     def __init__(self, window, width, height):
@@ -64,13 +66,12 @@ class Trade:
 
         max_hits = 50
         
-        p1 = player.Player(self.names[0], Indicators.get_df)
-        p2 = player.Player(self.names[1], Indicators.get_df)
+        
         while run:
 
             game_info = self.game.loop()
 
-            self.decision_to_actions(net1, cur_time)
+            self.decision_to_actions(net1, net2, cur_time)
 
             if draw:
                 self.game.draw(draw_score=False, draw_hits=True)
@@ -81,10 +82,10 @@ class Trade:
             if game_info.left_hits >= max_hits:
                 self.calculate_fitness(game_info, duration)
                 break
-
+            cur_time += 1
         return False
 
-    def decision_to_actions(self, net, time):
+    def decision_to_actions(self, net1, net2, time):
         """
         Determine where to move the left and the right paddle based on the two 
         neural networks that control them. <--- Decision to Actions
@@ -95,20 +96,28 @@ class Trade:
 
         indicators = Indicators(time)
 
-        output = net.activate((indicators.get_volume(), indicators.get_close_price(), indicators.get_SMA_diff()))
-        decision = output.index(max(output))
+        p1 = Player(self.names[0], Indicators.get_df)
+        p2 = Player(self.names[1], Indicators.get_df)
 
-        valid = True
-        if decision == 0:  # Don't move
-            genome.fitness -= 0.01  # we want to discourage this
-        elif decision == 1:  # Move up
-            
-            valid = self.game.move_paddle(left=left, up=True)
-        else:  # Move down
-            valid = self.game.move_paddle(left=left, up=False)
+        players = [(self.genome1, net1, p1, True), (self.genome2, net2, p2, False)]
 
-        if not valid:  # If the movement makes the paddle go off the screen punish the AI
-            genome.fitness -= 1
+        for (genome, net, player, left) in players:
+
+            output = net.activate((indicators.get_volume(), indicators.get_close_price(), indicators.get_SMA_diff()))
+            decision = output.index(max(output))
+
+            valid = True
+
+            if decision == 0:  # Don't move
+                genome.fitness -= 0.01  # we want to discourage this
+            elif decision == 1:  # Move up
+                p1.buy()
+                valid = self.game.move_paddle(left=left, up=True)
+            else:  # Move down
+                valid = self.game.move_paddle(left=left, up=False)
+
+            if not valid:  # If the movement makes the paddle go off the screen punish the AI
+                genome.fitness -= 1
 
     def calculate_fitness(self, game_info, duration):
         self.genome1.fitness += game_info.left_hits + duration
@@ -159,6 +168,28 @@ def test_best_network(config): #Run with best brain
     pong = Trade(win, width, height)
     pong.test_ai(winner_net)
 
+def start_pygame():
+    pygame.init()
+    surface = pygame.display.set_mode((1200, 400))
+    color = (240, 255, 255)
+    surface.fill(color)
+    screen = pygame.display.get_surface()
+    size = canvas.get_width_height()
+    surf = pygame.image.fromstring(raw_data, size, "RGB")
+    font = pygame.font.SysFont("monospace", 15)
+    buy_label = font.render("Buy Order Opened at ", True, (0, 0, 0))
+    sell_label = font.render("Sell Order Opened at ", True, (0, 0, 0))
+    profit_label = font.render("Current profit: ", True, (0, 0, 0))
+    screen.blit(buy_label, (800, 0))
+    screen.blit(sell_label, (800, 50))
+    screen.blit(profit_label, (800, 100))
+    screen.blit(surf, (0, 0))
+    pygame.display.flip()
+    crashed = False
+    while not crashed:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                crashed = True
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
@@ -168,5 +199,6 @@ if __name__ == '__main__':
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_path)
 
+    start_pygame()
     run_neat(config)
     test_best_network(config)
