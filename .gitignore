@@ -7,6 +7,9 @@ venv/
 # training data set
 data/dukascopy
 
+#brains
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
