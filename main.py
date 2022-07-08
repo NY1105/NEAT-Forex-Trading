@@ -24,14 +24,14 @@ class Trader:
                                self.indicators.get_ma_diff(day)))
         decision = output.index(max(output))
         if decision == 0:  # Don't move
-            self.genome.fitness -= 500
+            self.genome.fitness -= 0.5
         elif decision == 1:  # open buy
             self.trader.buy(day)
-            self.genome.fitness += 100
+            self.genome.fitness += 0.1
 
         else:  # close order
             self.trader.close(day)
-            self.genome.fitness += 100
+            self.genome.fitness += 0.1
 
     def calculate_fitness(self):
         self.genome.fitness += self.trader.cash_total
