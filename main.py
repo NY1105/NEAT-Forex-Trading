@@ -21,7 +21,7 @@ class Trader:
     def ai_move(self, net, day):
         output = net.activate((self.indicators.get_volume(day),
                                self.indicators.get_close(day),
-                               self.indicators.get_ma_diff(day)))
+                               self.indicators.get_sma_diff_pct(day)))
         decision = output.index(max(output))
         # print(decision)
         if decision == 0:  # Don't move
@@ -46,7 +46,7 @@ def run_neat(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.run(eval_genomes, 50)
+    p.run(eval_genomes, 10)
 
 
 def eval_genomes(genomes, config):
