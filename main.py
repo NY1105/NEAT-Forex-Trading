@@ -21,20 +21,28 @@ class Trader:
     def ai_move(self, net, day):
         output = net.activate((self.indicators.get_volume(day),
                                self.indicators.get_close(day),
-                               self.indicators.get_sma_diff_pct(day)))
+                               self.indicators.get_sma_diff_pct(day),
+                               self.indicators.get_price_diff_with_prev(day),
+                               self.indicators.get_trend(day),
+                               self.indicators.get_rsi(day)
+                               ))
         decision = output.index(max(output))
         # print(decision)
         if decision == 0:  # Don't move
-            self.genome.fitness -= 0.02
+            # self.genome.fitness -= 0.02
+            self.genome.fitness *= 0.98
         elif decision == 1:  # open buy
             self.trader.buy(day)
-            self.genome.fitness += 0.01
+            # self.genome.fitness += 0.01
+            self.genome.fitness *= 1.01
         elif decision == 2:  # sell buy
             self.trader.sell(day)
-            self.genome.fitness += 0.01
+            # self.genome.fitness += 0.01
+            self.genome.fitness *= 1.01
         elif decision == 3:  # close order
             self.trader.close(day)
-            self.genome.fitness += 0.01
+            # self.genome.fitness += 0.01
+            self.genome.fitness *= 1.01
 
     def calculate_fitness(self):
         self.genome.fitness += self.trader.cash_total
@@ -46,7 +54,7 @@ def run_neat(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.run(eval_genomes, 10)
+    p.run(eval_genomes, 500)
 
 
 def eval_genomes(genomes, config):

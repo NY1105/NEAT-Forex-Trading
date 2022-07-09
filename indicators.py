@@ -30,12 +30,12 @@ class Indicators:
     def get_close(self, index):
         return self.df['Close'].iloc[index]
 
-    def trend(self, index, lookback=10):
+    def get_trend(self, index, lookback=10):
         if index < lookback:
             return 0
         return sigmoid((self.df['Close'].iloc[index - lookback] - self.df['Close'].iloc[index]) / lookback)
 
-    def price_diff_with_prev(self, index):
+    def get_price_diff_with_prev(self, index):
         if index < 1:
             return 0
         return ((self.df['Close'].iloc[index] - self.df['Close'].iloc[index - 1]) / self.df['Close'].iloc[index - 1])
