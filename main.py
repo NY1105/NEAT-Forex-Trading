@@ -46,7 +46,7 @@ def run_neat(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.run(eval_genomes, 5)
+    p.run(eval_genomes, 50)
 
 
 def eval_genomes(genomes, config):

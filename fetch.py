@@ -4,6 +4,8 @@ from operator import index
 from pathlib import Path
 import concurrent.futures
 import lzma
+from tkinter import END
+from xmlrpc.client import DateTime
 import pandas as pd
 import random
 import requests
@@ -13,36 +15,35 @@ import os
 import shutil
 
 
-
 ##################################################################################################################################
-#params
-START_DATE = date(2022, 7, 4)
-END_DATE = date(2022, 7, 5)
-SYMBOLS = ['USDJPY'] # ['AAPL.US/USD'] 
+# params
+START_DATE = date(2022, 6, 29)
+END_DATE = date(2022, 7, 1)
+SYMBOLS = ['EURJPY']  # ['AAPL.US/USD']
 PRICE_TYPES = ['BID']
 
 ##################################################################################################################################
 # default parameters for data source
 PROJECT_ROOT = Path(__file__).resolve().parent
-DATA_ROOT = PROJECT_ROOT / 'data' 
-DATA_ROOT.mkdir(parents=True, exist_ok=True)
+DATA_ROOT = PROJECT_ROOT / 'data'
 CSV_ROOT = PROJECT_ROOT / 'data' / 'csv'
+DATA_ROOT.mkdir(parents=True, exist_ok=True)
 CSV_ROOT.mkdir(parents=True, exist_ok=True)
 NUMBER_OF_WORKERS = 4
 
 
 def date_xrange(start_date, end_date):
     # date generator
-    for n in range(int((end_date - start_date).days)+1):
+    for n in range(int((end_date - start_date).days) + 1):
         yield start_date + timedelta(n)
 
 
-def get_minute_bars_from_bi5_candlestick(date):
+def get_minute_bars_from_bi5_candlestick(date,symbols):
     for price_type in PRICE_TYPES:
-        for symbol in SYMBOLS:
+        for symbol in symbols:
             year, month, day = date.isoformat().split('-')
-            stripped = symbol.replace('/','')
-            stripped = stripped.replace('.','')
+            stripped = symbol.replace('/', '')
+            stripped = stripped.replace('.', '')
             save_root = DATA_ROOT / 'dukascopy' / f'{stripped}' / f'{price_type}'
             save_root.mkdir(parents=True, exist_ok=True)
 
@@ -59,8 +60,8 @@ def get_minute_bars_from_bi5_candlestick(date):
                     f.write(r.content)
 
             if os.path.isfile(save_path):
-                pipette_to_price_ratio=1000
-                if len(stripped)==6:
+                pipette_to_price_ratio = 1000
+                if len(stripped) == 6:
                     if 'JPY' in symbol:
                         pipette_to_price_ratio = 10 ** 3
                     else:
@@ -86,25 +87,26 @@ def get_minute_bars_from_bi5_candlestick(date):
                     df.append([open_price, high, low, close, volume])
 
                 df = pd.DataFrame(data=df, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
-                
+
             csv_path = CSV_ROOT / f'{stripped}.csv'
 
             if not os.path.isfile(csv_path):
                 with open(csv_path, "w") as csv_file:
                     csv_writer = csv.writer(csv_file)
-                    csv_writer.writerow(['Datetime','Open', 'High', 'Low', 'Close', 'Volume'])
+                    csv_writer.writerow(['Datetime', 'Open', 'High', 'Low', 'Close', 'Volume'])
 
             df.to_csv(csv_path, mode='a', header=False)
             break
 
-def main():
-    for symbol in SYMBOLS:
-        stripped = symbol.replace('/','')
-        stripped = stripped.replace('.','')
+
+def fetch(symbols:list, start=START_DATE, end=END_DATE):
+    for symbol in symbols:
+        stripped = symbol.replace('/', '')
+        stripped = stripped.replace('.', '')
         csv_path = CSV_ROOT / f'{stripped}.csv'
         if os.path.isfile(csv_path):
             os.remove(csv_path)
-    
+
     # # multithreading
     # # collect all paths of bi5 files
     # with concurrent.futures.ThreadPoolExecutor(max_workers=NUMBER_OF_WORKERS) as executor:
@@ -113,11 +115,13 @@ def main():
     #         pass
 
     # # single thread
-    for date in date_xrange(START_DATE, END_DATE):
-        get_minute_bars_from_bi5_candlestick(date)
-    
+    for date in date_xrange(start, end):
+        get_minute_bars_from_bi5_candlestick(date,symbols)
+
     duka_root = DATA_ROOT / 'dukascopy'
     shutil.rmtree(duka_root)
 
+
 if __name__ == '__main__':
-    main()
+
+    fetch(SYMBOLS, START_DATE, END_DATE)
