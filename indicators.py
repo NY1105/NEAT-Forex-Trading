@@ -1,6 +1,7 @@
 import pandas as pd
 from fetch import *
 from datetime import date
+from utils import *
 
 
 ########################################################################################################################
@@ -26,8 +27,21 @@ class Indicators:
     def get_volume(self, index):
         return self.df['Volume'].iloc[index]
 
-    def get_ma_diff(self, index):
-        return self.df['FastSMA'].iloc[index] - self.df['SlowSMA'].iloc[index]
-
     def get_close(self, index):
         return self.df['Close'].iloc[index]
+
+    def trend(self, index, lookback=10):
+        if index < lookback:
+            return 0
+        return sigmoid((self.df['Close'].iloc[index - lookback] - self.df['Close'].iloc[index]) / lookback)
+
+    def price_diff_with_prev(self, index):
+        if index < 1:
+            return 0
+        return ((self.df['Close'].iloc[index] - self.df['Close'].iloc[index - 1]) / self.df['Close'].iloc[index - 1])
+
+    def get_rsi(self, index):
+        return self.df['RSI'].iloc[index]
+
+    def get_sma_diff_pct(self, index):
+        return (self.df['FastSMA'].iloc[index] - self.df['SlowSMA'].iloc[index]) / self.df['SlowSMA'].iloc[index]
