@@ -1,4 +1,5 @@
 import os
+from turtle import position
 import neat
 import pickle
 
@@ -15,46 +16,54 @@ class Trade:
     def train_ai(self, genome, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
-        for index in range(len(self.df)):
-            self.decision_to_action(net, index)
 
-        self.traders.close(len(self.df)-1)
-        self.calculate_fitness()
+        index = 0
+        while True:
+            trader_info = self.traders.update()
+            self.decision_to_action(net, index, trader_info.position)
 
-    def decision_to_action(self, net, index):
-        output = net.activate((self.indicators.get_volume(index),
+            if index == len(self.df)-1:
+                print(index)
+                self.traders.close(index)
+                self.calculate_fitness(trader_info.cash_total)
+                break
+            index+=1
+
+    def decision_to_action(self, net, index, position):
+
+
+        output = net.activate((position,
+                               self.indicators.get_volume(index),
                                self.indicators.get_close_price(index),
                                self.indicators.get_rsi(index)))
         decision = output.index(max(output))
-        # print(output)
+
         if decision == 0:
             self.genome.fitness -= 1
 
         elif decision == 1:
-            if self.traders.position == 0:
+            if position == 0:
                 self.traders.buy(index)
-                self.genome.fitness += 4   
+                self.genome.fitness += 4
             else:
-                self.genome.fitness -= 4 
-            
+                self.genome.fitness -= 4
+
         elif decision == 2:
-            if self.traders.position == 0:
+            if position == 0:
                 self.traders.sell(index)
                 self.genome.fitness += 4
             else:
                 self.genome.fitness -= 4
         else:
-            if self.traders.position != 0:
+            if position != 0:
                 self.traders.close(index)
                 self.genome.fitness += 4
             else:
                 self.genome.fitness -= 4
-                
 
-    def calculate_fitness(self):
-        self.genome.fitness += self.traders.cash_total
-        print(self.traders.cash_total)
-        print('complete')
+    def calculate_fitness(self, cash_total):
+        self.genome.fitness += cash_total
+        # print('complete')
 
 
 def eval_genomes(genomes, config):
@@ -72,7 +81,6 @@ def run_neat(config_path):
     # p.add_reporter(neat.Checkpointer(1))
 
     winner = p.run(eval_genomes, 5)
-
 
 
 if __name__ == '__main__':

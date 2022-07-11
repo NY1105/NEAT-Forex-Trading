@@ -1,3 +1,8 @@
+class Player_Info:
+    def __init__(self, cash_total, position):
+        self.cash_total = cash_total
+        self.position = position
+
 class Player:
 
     def __init__(self, df):
@@ -10,7 +15,7 @@ class Player:
 
     def buy(self, index):  # open buy order
         if self.cash_total < self.size * (self.df['Close'].iloc[index] + self.comission):
-            print("Not enough money for trading")
+            # print("Not enough money for trading")
             return False
 
         if self.position:  # if order exist
@@ -19,12 +24,12 @@ class Player:
 
         self.last_order_index = index   # record the index during order made
         self.position = self.size
-        print("Open buy order successed with close price " + str(self.df['Close'].iloc[index])+ " at " + str(self.cash_total))
+        # print("Open buy order successed with close price " + str(self.df['Close'].iloc[index])+ " at " + str(self.cash_total))
         return True
 
     def sell(self, index):  # open sell order
         if self.cash_total < self.size * (self.df['Close'].iloc[index] + self.comission):
-            print("Not enough money for trading")
+            # print("Not enough money for trading")
             return False
 
         if self.position:  # if order exist
@@ -33,7 +38,7 @@ class Player:
 
         self.last_order_index = index   # record the index during order made
         self.position = -self.size
-        print("Open sell order successed with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]) + " at " + str(self.cash_total))
+        # print("Open sell order successed with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]) + " at " + str(self.cash_total))
         return True
 
     def close(self, index):  # calculating profit during trade
@@ -49,7 +54,11 @@ class Player:
         
         self.cash_total += profit
         self.position = 0
-        print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]))
+        # print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]))
 
     def print_cash(self):
         print(f"Current asset : {self.cash_total}")
+
+    def update(self):
+        player_info = Player_Info(self.cash_total, self.position)
+        return player_info
