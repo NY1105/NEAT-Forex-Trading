@@ -1,42 +1,47 @@
-from textwrap import indent
 import pandas as pd
-from utils import * 
+from fetch import *
+from datetime import date
+from utils import *
 
+
+########################################################################################################################
 SYMBOL = 'EURUSD'
+START_DATE = date(2022, 6, 21)
+END_DATE = date(2022, 6, 24)
+# fetch([SYMBOL], START_DATE, END_DATE)
+########################################################################################################################
 
-df = pd.read_csv(f'data/csv/{SYMBOL}.csv')
-df['FastSMA'] = df['Close'].rolling(7, min_periods=7).mean().fillna(df['Close'])
-df['SlowSMA'] = df['Close'].rolling(20, min_periods=20).mean().fillna(df['Close'])
-df['RSI'] = rsi(df)
-df.dropna(inplace=True)
-df.reset_index(drop=True, inplace=True)
 
 class Indicators:
+    def __init__(self):
+
+        self.df = pd.read_csv(f'data/csv/{SYMBOL}.csv')
+        self.df['FastSMA'] = self.df['Close'].rolling(50, min_periods=50).mean().fillna(self.df['Close'])
+        self.df['SlowSMA'] = self.df['Close'].rolling(100, min_periods=100).mean().fillna(self.df['Close'])
+        self.df.dropna(inplace=True)
+        self.df.reset_index(drop=True, inplace=True)
 
     def get_df(self):
-        return df
+        return self.df
 
-    def get_volume(self, time):
-        return df['Volume'].iloc[time]
+    def get_volume(self, index):
+        return self.df['Volume'].iloc[index]
 
-    def get_close_price(self, time):
-        return df['Close'].iloc[time]
+    def get_close(self, index):
+        return self.df['Close'].iloc[index]
 
-    def trend(self, time, lookback=10):
-        if time < lookback:
+    def get_trend(self, index, lookback=10):
+        if index < lookback:
             return 0
-        return sigmoid((df['Close'].iloc[time - lookback] - df['Close'].iloc[time]) / lookback)
+        return sigmoid((self.df['Close'].iloc[index - lookback] - self.df['Close'].iloc[index]) / lookback)
 
-    def price_diff_with_prev(self, time):
-        if time<1:return 0
-        return ((df['Close'].iloc[time] - df['Close'].iloc[time-1]) / df['Close'].iloc[time-1])
+    def get_price_diff_with_prev(self, index):
+        if index < 1:
+            return 0
+        return ((self.df['Close'].iloc[index] - self.df['Close'].iloc[index - 1]) / self.df['Close'].iloc[index - 1])
 
-    def get_rsi(self, time):
-        return df['RSI'].iloc[time]
+    def get_rsi(self, index):
+        return self.df['RSI'].iloc[index]
 
-    def get_sma_diff_pct(sefl, time):
-        return (df['FastSMA'].iloc[time] - df['SlowSMA'].iloc[time]) / df['SlowSMA'].iloc[time]
-
-
-  
-    
+    def get_sma_diff_pct(self, index):
+        return (self.df['FastSMA'].iloc[index] - self.df['SlowSMA'].iloc[index]) / self.df['SlowSMA'].iloc[index]
