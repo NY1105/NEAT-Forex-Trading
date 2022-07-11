@@ -1,52 +1,71 @@
-import player
-from indicators import Indicators
-import neat
 import os
+import neat
+import pickle
+
+from indicators import Indicators
+from player import Player
 
 
-class Trader:
+class Trade:
     def __init__(self):
-        self.indicators = Indicators()  # get the indicator object
-        self.df = self.indicators.get_df()  # get the dataframe
-        self.trader = player.Player(self.df)  # set the trader
+        self.indicators = Indicators()
+        self.df = self.indicators.get_df()
+        self.traders = Player(self.df)
 
     def train_ai(self, genome, config):
-        net = neat.nn.FeedForwardNetwork.create(genome, config)  # create the neat network
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
-        for day in range(len(self.df)):
-            self.ai_move(net, day)
 
-        self.calculate_fitness()
+        index = 0
+        while True:
+            trader_info = self.traders.update()
+            self.decision_to_action(net, index, trader_info.position)
 
-    def ai_move(self, net, day):
-        output = net.activate((self.indicators.get_volume(day),
-                               self.indicators.get_close(day),
-                               self.indicators.get_sma_diff_pct(day),
-                               self.indicators.get_price_diff_with_prev(day),
-                               self.indicators.get_trend(day),
-                               self.indicators.get_rsi(day)
-                               ))
+            if index == len(self.df) - 1:
+                self.traders.close(index)
+                self.calculate_fitness(trader_info.cash_total)
+                break
+            index += 1
+
+    def decision_to_action(self, net, index, position):
+
+        output = net.activate((position,
+                               self.indicators.get_trend(index)))
         decision = output.index(max(output))
-        # print(decision)
-        if decision == 0:  # Don't move
-            # self.genome.fitness -= 0.02
-            self.genome.fitness *= 0.98
-        elif decision == 1:  # open buy
-            self.trader.buy(day)
-            # self.genome.fitness += 0.01
-            self.genome.fitness *= 1.01
-        elif decision == 2:  # sell buy
-            self.trader.sell(day)
-            # self.genome.fitness += 0.01
-            self.genome.fitness *= 1.01
-        elif decision == 3:  # close order
-            self.trader.close(day)
-            # self.genome.fitness += 0.01
-            self.genome.fitness *= 1.01
 
-    def calculate_fitness(self):
-        self.genome.fitness += self.trader.cash_total
-        # print(self.genome.fitness)
+        if decision == 0:
+            self.genome.fitness -= 1
+
+        elif decision == 1:
+            if position == 0:
+                self.traders.buy(index)
+                self.genome.fitness += 4
+            else:
+                self.genome.fitness -= 4
+
+        elif decision == 2:
+            if position == 0:
+                self.traders.sell(index)
+                self.genome.fitness += 4
+            else:
+                self.genome.fitness -= 4
+        else:
+            if position != 0:
+                self.traders.close(index)
+                self.genome.fitness += 4
+            else:
+                self.genome.fitness -= 4
+
+    def calculate_fitness(self, cash_total):
+        self.genome.fitness += cash_total
+        print(cash_total)
+
+
+def eval_genomes(genomes, config):
+    for i, (genome_id, genome) in enumerate(genomes):
+        genome.fitness = 0
+        trade = Trade()
+        trade.train_ai(genome, config)
 
 
 def run_neat(config_path):
@@ -54,14 +73,9 @@ def run_neat(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.run(eval_genomes, 500)
+    # p.add_reporter(neat.Checkpointer(1))
 
-
-def eval_genomes(genomes, config):
-    for i, (genome_id, genome) in enumerate(genomes):
-        t = Trader()
-        genome.fitness = 0
-        t.train_ai(genome, config)
+    winner = p.run(eval_genomes, 5)
 
 
 if __name__ == '__main__':
