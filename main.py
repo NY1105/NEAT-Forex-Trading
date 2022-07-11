@@ -39,26 +39,17 @@ class Trade:
         elif decision == 1:
             if position == 0:
                 self.traders.buy(index)
-                self.genome.fitness += 4
-            else:
-                self.genome.fitness -= 4
 
         elif decision == 2:
             if position == 0:
                 self.traders.sell(index)
-                self.genome.fitness += 4
-            else:
-                self.genome.fitness -= 4
+
         else:
             if position != 0:
-                self.traders.close(index)
-                self.genome.fitness += 4
-            else:
-                self.genome.fitness -= 4
+                self.genome.fitness += self.traders.close(index)
 
     def calculate_fitness(self, cash_total):
-        self.genome.fitness += cash_total
-        print('cash total: ' + str(cash_total))
+        self.genome.fitness += self.traders.close(len(self.df) - 1)
         print('fitness: ' + str(self.genome.fitness))
 
 
