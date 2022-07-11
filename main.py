@@ -11,6 +11,34 @@ class Trade:
         self.indicators = Indicators()
         self.df = self.indicators.get_df()
         self.traders = Player(self.df)
+    
+    def test_ai(self, net):
+        index = 0
+        while True:
+            trader_info = self.traders.update()
+            position = trader_info.position 
+            output = net.activate((position,
+                               self.indicators.get_trend(index)))
+            decision = output.index(max(output))
+
+            if position == 0:
+                self.traders.buy(index)
+
+            elif decision == 1:
+                if position == 0:
+                    self.traders.sell(index)
+
+            elif decision == 2:
+
+                if position != 0:
+                    self.traders.close(index)
+
+                if index == len(self.df) - 1:
+                    self.traders.close(index)
+                    self.calculate_fitness(trader_info.cash_total)
+                    break
+            index += 1
+        print(self.traders.cash_total)
 
     def train_ai(self, genome, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -22,24 +50,17 @@ class Trade:
             self.decision_to_action(net, index, trader_info.position)
 
             if index == len(self.df) - 1:
-                profit = self.traders.close(len(self.df) - 1)
-                self.genome.fitness += profit
-
-                print('cash:\t' + str(self.traders.cash_total))
+                self.traders.close(index)
+                self.calculate_fitness(trader_info.cash_total)
                 break
             index += 1
 
     def decision_to_action(self, net, index, position):
 
-        output = net.activate((self.indicators.get_rsi(index),
-                               self.indicators.get_volume(index),
-                               self.indicators.get_close(index),
-                               self.indicators.get_trend(index),
-                               self.indicators.get_price_diff_with_prev(index),
-                               self.indicators.get_sma_diff_pct(index),
-                               position
-                               ))
+        output = net.activate((position,
+                               self.indicators.get_trend(index)))
         decision = output.index(max(output))
+
         if decision == 0:
             if position == 0:
                 self.traders.buy(index)
@@ -51,9 +72,12 @@ class Trade:
         elif decision == 2:
 
             if position != 0:
+                self.genome.fitness += self.traders.close(index)
 
-                profit = self.traders.close(index)
-                self.genome.fitness += profit
+    def calculate_fitness(self, cash_total):
+        self.genome.fitness += self.traders.close(len(self.df) - 1)
+        print('complete')
+        # print('fitness: ' + str(self.genome.fitness))
 
 
 def eval_genomes(genomes, config):
@@ -61,7 +85,6 @@ def eval_genomes(genomes, config):
         genome.fitness = 0
         trade = Trade()
         trade.train_ai(genome, config)
-        print('complete')
 
 
 def run_neat(config_path):
@@ -71,8 +94,17 @@ def run_neat(config_path):
     p.add_reporter(stats)
     # p.add_reporter(neat.Checkpointer(1))
 
-    winner = p.run(eval_genomes, 5)
+    winner = p.run(eval_genomes, 3)
+    # with open("best.pickle", "wb") as f:
+        # pickle.dump(winner, f)
 
+def test_best_network(config):
+    with open("best.pickle", "rb") as f:
+        winner = pickle.load(f)
+    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+
+    trade = Trade()
+    trade.test_ai(winner_net)
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
