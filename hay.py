@@ -30,9 +30,7 @@ class Trade:
     def decision_to_action(self, net, index, position):
 
         output = net.activate((position,
-                               self.indicators.get_volume(index),
-                               self.indicators.get_close(index),
-                               self.indicators.get_rsi(index)))
+                               self.indicators.get_trend(index)))
         decision = output.index(max(output))
 
         if decision == 0:
@@ -60,7 +58,7 @@ class Trade:
 
     def calculate_fitness(self, cash_total):
         self.genome.fitness += cash_total
-        # print('complete')
+        print(cash_total)
 
 
 def eval_genomes(genomes, config):
