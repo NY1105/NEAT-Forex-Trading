@@ -55,8 +55,9 @@ class Player:
 
         self.cash_total += profit
         self.position = 0
+        print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]) + ' and earning ' + str(profit) + ' with total earning ' + str(self.cash_total))
+
         return profit
-        # print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]))
 
     def print_cash(self):
         print(f"Current asset : {self.cash_total}")
