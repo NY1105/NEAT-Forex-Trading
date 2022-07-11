@@ -22,35 +22,27 @@ class Trade:
             self.decision_to_action(net, index, trader_info.position)
 
             if index == len(self.df) - 1:
-                self.traders.close(index)
-                self.calculate_fitness(trader_info.cash_total)
+                self.genome.fitness += self.traders.close(len(self.df) - 1)
                 break
             index += 1
 
     def decision_to_action(self, net, index, position):
 
-        output = net.activate((position,
-                               self.indicators.get_trend(index)))
+        output = net.activate((self.indicators.get_close(index),
+                               self.indicators.get_volume(index)))
         decision = output.index(max(output))
 
         if decision == 0:
-            self.genome.fitness -= 1
-
-        elif decision == 1:
             if position == 0:
                 self.traders.buy(index)
 
-        elif decision == 2:
+        elif decision == 1:
             if position == 0:
                 self.traders.sell(index)
 
-        else:
+        elif decision == 2:
             if position != 0:
                 self.genome.fitness += self.traders.close(index)
-
-    def calculate_fitness(self, cash_total):
-        self.genome.fitness += self.traders.close(len(self.df) - 1)
-        print('fitness: ' + str(self.genome.fitness))
 
 
 def eval_genomes(genomes, config):
@@ -67,7 +59,7 @@ def run_neat(config_path):
     p.add_reporter(stats)
     # p.add_reporter(neat.Checkpointer(1))
 
-    winner = p.run(eval_genomes, 5)
+    winner = p.run(eval_genomes, 10)
 
 
 if __name__ == '__main__':
