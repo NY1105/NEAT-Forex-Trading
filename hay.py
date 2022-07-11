@@ -1,5 +1,4 @@
 import os
-from turtle import position
 import neat
 import pickle
 
@@ -22,19 +21,17 @@ class Trade:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position)
 
-            if index == len(self.df)-1:
-                print(index)
+            if index == len(self.df) - 1:
                 self.traders.close(index)
                 self.calculate_fitness(trader_info.cash_total)
                 break
-            index+=1
+            index += 1
 
     def decision_to_action(self, net, index, position):
 
-
         output = net.activate((position,
                                self.indicators.get_volume(index),
-                               self.indicators.get_close_price(index),
+                               self.indicators.get_close(index),
                                self.indicators.get_rsi(index)))
         decision = output.index(max(output))
 

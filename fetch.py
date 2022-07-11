@@ -14,15 +14,12 @@ import time
 import os
 import shutil
 
-
-##################################################################################################################################
 # params
 START_DATE = date(2022, 6, 20)
 END_DATE = date(2022, 6, 24)
 SYMBOLS = ['EURUSD']  # ['AAPL.US/USD']
 PRICE_TYPES = ['BID']
 
-##################################################################################################################################
 # default parameters for data source
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATA_ROOT = PROJECT_ROOT / 'data'
@@ -38,7 +35,7 @@ def date_xrange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
-def get_minute_bars_from_bi5_candlestick(date,symbols):
+def get_minute_bars_from_bi5_candlestick(date, symbols):
     for price_type in PRICE_TYPES:
         for symbol in symbols:
             year, month, day = date.isoformat().split('-')
@@ -99,7 +96,7 @@ def get_minute_bars_from_bi5_candlestick(date,symbols):
             break
 
 
-def fetch(symbols:list, start=START_DATE, end=END_DATE):
+def fetch(symbols: list, start=START_DATE, end=END_DATE):
     for symbol in symbols:
         stripped = symbol.replace('/', '')
         stripped = stripped.replace('.', '')
@@ -116,7 +113,7 @@ def fetch(symbols:list, start=START_DATE, end=END_DATE):
 
     # # single thread
     for date in date_xrange(start, end):
-        get_minute_bars_from_bi5_candlestick(date,symbols)
+        get_minute_bars_from_bi5_candlestick(date, symbols)
 
     duka_root = DATA_ROOT / 'dukascopy'
     shutil.rmtree(duka_root)
