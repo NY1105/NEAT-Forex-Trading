@@ -22,16 +22,24 @@ class Trade:
             self.decision_to_action(net, index, trader_info.position)
 
             if index == len(self.df) - 1:
-                self.genome.fitness += self.traders.close(len(self.df) - 1)
+                profit = self.traders.close(len(self.df) - 1)
+                self.genome.fitness += profit
+
+                print('cash:\t' + str(self.traders.cash_total))
                 break
             index += 1
 
     def decision_to_action(self, net, index, position):
 
-        output = net.activate((self.indicators.get_close(index),
-                               self.indicators.get_volume(index)))
+        output = net.activate((self.indicators.get_rsi(index),
+                               self.indicators.get_volume(index),
+                               self.indicators.get_close(index),
+                               self.indicators.get_trend(index),
+                               self.indicators.get_price_diff_with_prev(index),
+                               self.indicators.get_sma_diff_pct(index),
+                               position
+                               ))
         decision = output.index(max(output))
-
         if decision == 0:
             if position == 0:
                 self.traders.buy(index)
@@ -41,8 +49,11 @@ class Trade:
                 self.traders.sell(index)
 
         elif decision == 2:
+
             if position != 0:
-                self.genome.fitness += self.traders.close(index)
+
+                profit = self.traders.close(index)
+                self.genome.fitness += profit
 
 
 def eval_genomes(genomes, config):
@@ -50,6 +61,7 @@ def eval_genomes(genomes, config):
         genome.fitness = 0
         trade = Trade()
         trade.train_ai(genome, config)
+        print('complete')
 
 
 def run_neat(config_path):
@@ -59,7 +71,7 @@ def run_neat(config_path):
     p.add_reporter(stats)
     # p.add_reporter(neat.Checkpointer(1))
 
-    winner = p.run(eval_genomes, 10)
+    winner = p.run(eval_genomes, 5)
 
 
 if __name__ == '__main__':
