@@ -28,7 +28,7 @@ class Indicators:
     def get_close(self, index):
         return self.df['Close'].iloc[index]
 
-    def get_trend(self, index, lookback=10):
+    def get_trend(self, index, lookback=30):
         if index < lookback:
             return 0
         return sigmoid((self.df['Close'].iloc[index - lookback] - self.df['Close'].iloc[index]) / lookback)
