@@ -58,7 +58,8 @@ class Trade:
 
     def calculate_fitness(self, cash_total):
         self.genome.fitness += cash_total
-        print(cash_total)
+        print('cash total: ' + str(cash_total))
+        print('fitness: ' + str(self.genome.fitness))
 
 
 def eval_genomes(genomes, config):

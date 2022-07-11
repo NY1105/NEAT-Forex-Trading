@@ -3,6 +3,7 @@ class Player_Info:
         self.cash_total = cash_total
         self.position = position
 
+
 class Player:
 
     def __init__(self, df):
@@ -51,9 +52,10 @@ class Player:
             last_price = self.df['Close'].iloc[self.last_order_index]  # get the open order price
             curr_price = self.df['Close'].iloc[index]  # get the close order price
             profit = self.position * (curr_price - last_price + self.comission * 2)  # calculation of sell profit
-        
+
         self.cash_total += profit
         self.position = 0
+        return profit
         # print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]))
 
     def print_cash(self):
