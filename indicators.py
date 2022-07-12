@@ -19,6 +19,8 @@ class Indicators:
         self.df['RSI'] = rsi(self.df)
         self.df.dropna(inplace=True)
         self.df.reset_index(drop=True, inplace=True)
+        self.closes = []
+        self.volumes = []
 
     def get_df(self):
         return self.df
@@ -45,14 +47,25 @@ class Indicators:
     def get_sma_diff_pct(self, index):
         return (self.df['FastSMA'].iloc[index] - self.df['SlowSMA'].iloc[index]) / self.df['SlowSMA'].iloc[index]
 
+    # def get_past_data(self, index, lookback=10):
+    #     closes = []
+    #     volumes = []
+    #     for tf in range(index - lookback - 1, index + 1):
+    #         if tf < 0:
+    #             closes.append(0)
+    #             volumes.append(0)
+    #         else:
+    #             closes.append(self.df['Close'].iloc[tf])
+    #             volumes.append(self.df['Volume'].iloc[tf])
+    #     return closes, volumes
+
     def get_past_data(self, index, lookback=10):
-        closes = []
-        volumes = []
-        for tf in range(index - lookback - 1, index + 1):
-            if tf < 0:
-                closes.append(0)
-                volumes.append(0)
-            else:
-                closes.append(self.df['Close'].iloc[tf])
-                volumes.append(self.df['Volume'].iloc[tf])
-        return closes, volumes
+        if index < lookback or len(self.closes) < lookback:
+            self.closes = [0 for i in range(lookback)]
+            self.volumes = [0 for i in range(lookback)]
+        else:
+            self.closes.pop(0)
+            self.closes.append(self.df['Close'].iloc[index])
+            self.volumes.pop(0)
+            self.volumes.append(self.df['Volume'].iloc[index])
+        return self.closes, self.volumes
