@@ -58,9 +58,12 @@ class Trade:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position)
 
+            # if not self.count_bad and not self.count_good:
+            #     net.pop(genome.index(genome))
+
             if index == len(self.df) - 1:
                 self.traders.force_close(index)
-                # print(f'good:{self.count_good}, bad: {self.count_bad}')
+                print(f'good:{self.count_good}, bad: {self.count_bad}')
                 self.count_good, self.count_bad = 0, 0
                 # self.calculate_fitness(trader_info.cash_total)
                 break
@@ -70,19 +73,24 @@ class Trade:
 
         output = net.activate((position,
                                self.indicators.get_trend(index),
-                               self.indicators.get_volume_pct(index)))
+                               self.indicators.get_volume_pct(index),
+                               self.indicators.get_sma_diff_pct(index),
+                               self.indicators.get_rsi(index),
+                               ))
         decision = output.index(max(output))
 
         if position:
             temp_profit = self.traders.check_close(index)
             if temp_profit > 0:
-                self.genome.fitness += 1
+                self.genome.fitness += 500
                 self.count_good += 1
             elif temp_profit < 0:
-                self.genome.fitness -= 1
+                self.genome.fitness -= 50
                 self.count_bad += 1
-        elif decision == 0:
+        elif decision == 1:
             self.traders.buy(index)
+        elif decision == 0:
+            self.genome.fitness -= 0.1
         # if decision == 0:
         #     if position == 0:
         #         self.traders.buy(index)

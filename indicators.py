@@ -4,8 +4,8 @@ from datetime import date
 from utils import *
 
 SYMBOL = 'EURUSD'
-START_DATE = date(2022, 6, 20)
-END_DATE = date(2022, 6, 24)
+START_DATE = date(2022, 6, 27)
+END_DATE = date(2022, 7, 1)
 # fetch([SYMBOL], START_DATE, END_DATE)
 
 
