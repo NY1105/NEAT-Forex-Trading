@@ -23,37 +23,39 @@ class Trade:
 
             if index == len(self.df) - 1:
                 profit = self.traders.close(len(self.df) - 1)
-                if profit > 0:
-                    self.genome.fitness += 10
-
-                print('cash:\t' + str(self.traders.cash_total))
+                self.genome.fitness += profit
                 break
             index += 1
-            print('hi')
 
     def decision_to_action(self, net, index, position):
-
-        output = net.activate((self.indicators.get_rsi(index),
-                               self.indicators.get_volume(index),
+        price = self.indicators.get_ten_data(index)
+        if position > 0:
+            position = 1
+        elif position < 0:
+            position = -1
+        output = net.activate((price[0],
+                               price[1],
+                               price[2],
+                               price[3],
+                               price[4],
+                               price[5],
+                               price[6],
+                               price[7],
+                               price[8],
+                               price[9],
                                position
                                ))
         decision = output.index(max(output))
 
         if decision == 0:
-            if position == 0:
-                self.traders.buy(index)
+            self.traders.buy(index)
 
         elif decision == 1:
-            if position == 0:
-                self.traders.sell(index)
+            self.traders.sell(index)
 
         elif decision == 2:
-
-            if position != 0:
-                profit = self.traders.close(index)
-
-                if profit > 0:
-                    self.genome.fitness += 10
+            profit = self.traders.close(index)
+            self.genome.fitness += profit
 
 
 def eval_genomes(genomes, config):
@@ -61,7 +63,6 @@ def eval_genomes(genomes, config):
         genome.fitness = 0
         trade = Trade()
         trade.train_ai(genome, config)
-        print('complete')
 
 
 def run_neat(config_path):
@@ -71,7 +72,7 @@ def run_neat(config_path):
     p.add_reporter(stats)
     # p.add_reporter(neat.Checkpointer(1))
 
-    winner = p.run(eval_genomes, 5)
+    winner = p.run(eval_genomes, 50)
 
 
 if __name__ == '__main__':
