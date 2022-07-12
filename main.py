@@ -12,7 +12,7 @@ class Trade:
         self.df = self.indicators.get_df()
         self.traders = Player(self.df)
 
-    def train_ai(self, genome, config):
+    def train_ai(self, genome, config, i):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
 
@@ -24,12 +24,12 @@ class Trade:
             if index == len(self.df) - 1:
                 profit = self.traders.close(len(self.df) - 1)
                 self.genome.fitness += profit
-                print(f'Genome {genome}: {self.genome.fitness}')
+                print(f'Genome {i+1}: {"%.2f" %self.genome.fitness}')
                 break
             index += 1
 
     def decision_to_action(self, net, index, position):
-        price, volume = self.indicators.get_past_data(index,60)
+        price, volume = self.indicators.get_past_data(index, 30)
         if position > 0:
             position = 1
         elif position < 0:
@@ -94,66 +94,6 @@ class Trade:
                                volume[28],
                                price[29],
                                volume[29],
-                               price[30],
-                               volume[30],
-                               price[31],
-                               volume[31],
-                               price[32],
-                               volume[32],
-                               price[33],
-                               volume[33],
-                               price[34],
-                               volume[34],
-                               price[35],
-                               volume[35],
-                               price[36],
-                               volume[36],
-                               price[37],
-                               volume[37],
-                               price[38],
-                               volume[38],
-                               price[39],
-                               volume[39],
-                               price[40],
-                               volume[40],
-                               price[41],
-                               volume[41],
-                               price[42],
-                               volume[42],
-                               price[43],
-                               volume[43],
-                               price[44],
-                               volume[44],
-                               price[45],
-                               volume[45],
-                               price[46],
-                               volume[46],
-                               price[47],
-                               volume[47],
-                               price[48],
-                               volume[48],
-                               price[49],
-                               volume[49],
-                               price[50],
-                               volume[50],
-                               price[51],
-                               volume[51],
-                               price[52],
-                               volume[52],
-                               price[53],
-                               volume[53],
-                               price[54],
-                               volume[54],
-                               price[55],
-                               volume[55],
-                               price[56],
-                               volume[56],
-                               price[57],
-                               volume[57],
-                               price[58],
-                               volume[58],
-                               price[59],
-                               volume[59],
                                position
                                ))
         decision = output.index(max(output))
@@ -173,7 +113,7 @@ def eval_genomes(genomes, config):
     for i, (genome_id, genome) in enumerate(genomes):
         genome.fitness = 0
         trade = Trade()
-        trade.train_ai(genome, config)
+        trade.train_ai(genome, config, i)
 
 
 def run_neat(config_path):
@@ -181,7 +121,6 @@ def run_neat(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    neat.StatisticsReporter.save()
     # p.add_reporter(neat.Checkpointer(1))
 
     winner = p.run(eval_genomes, 50)
