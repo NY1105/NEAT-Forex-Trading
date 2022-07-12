@@ -1,6 +1,10 @@
 import math
 import pandas as pd
+import numpy as np
 
+
+def tanh(x):
+    return np.tanh(x)
 
 def sigmoid(x):
     return (2 / (1 + math.e**(-x))) - 1

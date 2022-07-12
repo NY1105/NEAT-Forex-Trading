@@ -4,9 +4,9 @@ from datetime import date
 from utils import *
 
 SYMBOL = 'EURUSD'
-START_DATE = date(2022, 6, 14)
-END_DATE = date(2022, 6, 24)
-#fetch([SYMBOL], START_DATE, END_DATE)
+START_DATE = date(2022, 6, 1)
+END_DATE = date(2022, 7, 1)
+fetch([SYMBOL], START_DATE, END_DATE)
 
 
 class Indicators:
@@ -22,8 +22,8 @@ class Indicators:
     def get_df(self):
         return self.df
 
-    def get_volume(self, index):
-        return self.df['Volume'].iloc[index]
+    def get_volume_pct(self, index, lookback=30):
+        return tanh((self.df['Volume'].iloc[index] - self.df['Volume'].iloc[index - lookback]) / lookback)
 
     def get_close(self, index):
         return self.df['Close'].iloc[index]
@@ -31,7 +31,7 @@ class Indicators:
     def get_trend(self, index, lookback=30):
         if index < lookback:
             return 0
-        return sigmoid((self.df['Close'].iloc[index - lookback] - self.df['Close'].iloc[index]) / lookback)
+        return sigmoid((self.df['Close'].iloc[index] - self.df['Close'].iloc[index - lookback]) / lookback)
 
     def get_price_diff_with_prev(self, index):
         if index < 1:

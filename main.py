@@ -11,32 +11,40 @@ class Trade:
         self.indicators = Indicators()
         self.df = self.indicators.get_df()
         self.traders = Player(self.df)
-    
+
     def test_ai(self, net):
         index = 0
         while True:
             trader_info = self.traders.update()
-            position = trader_info.position 
+            position = trader_info.position
             output = net.activate((position,
-                               self.indicators.get_trend(index)))
+                                   self.indicators.get_trend(index)))
             decision = output.index(max(output))
 
-            if position == 0:
+            if position:
+                temp_profit = self.traders.check_close(index)
+                if temp_profit > 0:
+                    self.genome.fitness += 1
+                elif temp_profit < 0:
+                    self.genome.fitness -= 1
+            elif decision > 0.5:
                 self.traders.buy(index)
 
-            elif decision == 1:
-                if position == 0:
-                    self.traders.sell(index)
+            if index == len(self.df) - 1:
+                self.traders.close(index)
+                self.calculate_fitness(trader_info.cash_total)
+                break
+            # if position == 0:
+            #     self.traders.buy(index)
 
-            elif decision == 2:
+            # elif decision == 1:
+            #     if position == 0:
+            #         self.traders.sell(index)
 
-                if position != 0:
-                    self.traders.close(index)
+            # elif decision == 2:
 
-                if index == len(self.df) - 1:
-                    self.traders.close(index)
-                    self.calculate_fitness(trader_info.cash_total)
-                    break
+            #     if position != 0:
+            #         self.traders.close(index)
             index += 1
         print(self.traders.cash_total)
 
@@ -45,39 +53,53 @@ class Trade:
         self.genome = genome
 
         index = 0
+        self.count_good, self.count_bad = 0, 0
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position)
 
             if index == len(self.df) - 1:
-                self.traders.close(index)
-                self.calculate_fitness(trader_info.cash_total)
+                self.traders.force_close(index)
+                print(f'good:{self.count_good}, bad: {self.count_bad}')
+                self.count_good, self.count_bad = 0, 0
+                # self.calculate_fitness(trader_info.cash_total)
                 break
             index += 1
 
     def decision_to_action(self, net, index, position):
 
         output = net.activate((position,
-                               self.indicators.get_trend(index)))
+                               self.indicators.get_trend(index),
+                               self.indicators.get_volume_pct(index)))
         decision = output.index(max(output))
+        
+        if position:
+            temp_profit = self.traders.check_close(index)
+            if temp_profit > 0:
+                self.genome.fitness += 1
+                self.count_good += 1
+            elif temp_profit < 0:
+                self.genome.fitness -= 1
+                self.count_bad += 1
+        elif decision > 0.5:
+            self.traders.buy(index)
+        # if decision == 0:
+        #     if position == 0:
+        #         self.traders.buy(index)
 
-        if decision == 0:
-            if position == 0:
-                self.traders.buy(index)
+        # elif decision == 1:
+        #     if position == 0:
+        #         self.traders.sell(index)
 
-        elif decision == 1:
-            if position == 0:
-                self.traders.sell(index)
+        # elif decision == 2:
 
-        elif decision == 2:
-
-            if position != 0:
-                self.genome.fitness += self.traders.close(index)
+        #     if position != 0:
+        #         self.genome.fitness += self.traders.close(index)
 
     def calculate_fitness(self, cash_total):
-        self.genome.fitness += self.traders.close(len(self.df) - 1)
-        print('complete')
-        # print('fitness: ' + str(self.genome.fitness))
+        self.genome.fitness += self.traders.force_close(len(self.df) - 1)
+        # print('complete')
+        # print('fitness: ' + self.genome.fitness))
 
 
 def eval_genomes(genomes, config):
@@ -94,9 +116,10 @@ def run_neat(config_path):
     p.add_reporter(stats)
     # p.add_reporter(neat.Checkpointer(1))
 
-    winner = p.run(eval_genomes, 3)
+    winner = p.run(eval_genomes, 20)
     # with open("best.pickle", "wb") as f:
-        # pickle.dump(winner, f)
+    # pickle.dump(winner, f)
+
 
 def test_best_network(config):
     with open("best.pickle", "rb") as f:
@@ -105,6 +128,7 @@ def test_best_network(config):
 
     trade = Trade()
     trade.test_ai(winner_net)
+
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
@@ -115,3 +139,7 @@ if __name__ == '__main__':
                          config_path)
 
     run_neat(config)
+
+'''
+flappybirdization on 12/7/2022
+'''
