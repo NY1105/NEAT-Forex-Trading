@@ -13,3 +13,10 @@ def rsi(df, periods=14):
     ma_up = up.ewm(com=periods - 1, adjust=True, min_periods=periods).mean()
     ma_down = down.ewm(com=periods - 1, adjust=True, min_periods=periods).mean()
     return 100 - (100 / (1 + ma_up / ma_down))
+
+def param_gen(amount):
+    for i in range(amount):
+        print(f'price[{i}],\nvolume[{i}],')
+    return
+
+param_gen(60)
