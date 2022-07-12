@@ -69,8 +69,8 @@ class Player:
             profit = self.position * (curr_price - last_price - self.comission * 2)
             self.cash_total += profit
             self.position = 0
-        if profit:
-            print(profit)
+        # if profit:
+            # print(profit)
         return profit
 
     def force_close(self, index):

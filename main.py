@@ -27,7 +27,7 @@ class Trade:
                     self.genome.fitness += 1
                 elif temp_profit < 0:
                     self.genome.fitness -= 1
-            elif decision > 0.5:
+            elif decision == 0:
                 self.traders.buy(index)
 
             if index == len(self.df) - 1:
@@ -60,7 +60,7 @@ class Trade:
 
             if index == len(self.df) - 1:
                 self.traders.force_close(index)
-                print(f'good:{self.count_good}, bad: {self.count_bad}')
+                # print(f'good:{self.count_good}, bad: {self.count_bad}')
                 self.count_good, self.count_bad = 0, 0
                 # self.calculate_fitness(trader_info.cash_total)
                 break
@@ -72,7 +72,7 @@ class Trade:
                                self.indicators.get_trend(index),
                                self.indicators.get_volume_pct(index)))
         decision = output.index(max(output))
-        
+
         if position:
             temp_profit = self.traders.check_close(index)
             if temp_profit > 0:
@@ -81,7 +81,7 @@ class Trade:
             elif temp_profit < 0:
                 self.genome.fitness -= 1
                 self.count_bad += 1
-        elif decision > 0.5:
+        elif decision == 0:
             self.traders.buy(index)
         # if decision == 0:
         #     if position == 0:
