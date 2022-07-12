@@ -28,7 +28,7 @@ class Trade:
             index += 1
 
     def decision_to_action(self, net, index, position):
-        price = self.indicators.get_ten_data(index)
+        price, volume = self.indicators.get_past_data(index,60)
         if position > 0:
             position = 1
         elif position < 0:
@@ -43,6 +43,16 @@ class Trade:
                                price[7],
                                price[8],
                                price[9],
+                               volume[0],
+                               volume[1],
+                               volume[2],
+                               volume[3],
+                               volume[4],
+                               volume[5],
+                               volume[6],
+                               volume[7],
+                               volume[8],
+                               volume[9],
                                position
                                ))
         decision = output.index(max(output))

@@ -12,8 +12,8 @@ END_DATE = date(2022, 6, 24)
 class Indicators:
     def __init__(self):
 
-        self.df = pd.read_csv(f'{SYMBOL}.csv')
-        # self.df = pd.read_csv(f'data/csv/{SYMBOL}.csv')
+        # self.df = pd.read_csv(f'{SYMBOL}.csv')
+        self.df = pd.read_csv(f'data/csv/{SYMBOL}.csv')
         self.df['FastSMA'] = self.df['Close'].rolling(50, min_periods=50).mean().fillna(self.df['Close'])
         self.df['SlowSMA'] = self.df['Close'].rolling(100, min_periods=100).mean().fillna(self.df['Close'])
         self.df['RSI'] = rsi(self.df)
@@ -45,12 +45,14 @@ class Indicators:
     def get_sma_diff_pct(self, index):
         return (self.df['FastSMA'].iloc[index] - self.df['SlowSMA'].iloc[index]) / self.df['SlowSMA'].iloc[index]
 
-    def get_ten_data(self, index):
-        datas = []
-        for tf in range(index - 9, index+1):
+    def get_past_data(self, index, lookback=10):
+        closes = []
+        volumes = []
+        for tf in range(index - lookback - 1, index + 1):
             if tf < 0:
-                datas.append(0)
+                closes.append(0)
+                volumes.append(0)
             else:
-                datas.append(self.df['Close'].iloc[tf])
-        return datas
-
+                closes.append(self.df['Close'].iloc[tf])
+                volumes.append(self.df['Volume'].iloc[tf])
+        return closes, volumes
