@@ -29,6 +29,7 @@ class Trade:
                 print('cash:\t' + str(self.traders.cash_total))
                 break
             index += 1
+            print('hi')
 
     def decision_to_action(self, net, index, position):
 
