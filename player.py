@@ -25,7 +25,7 @@ class Player:
 
         self.last_order_index = index   # record the index during order made
         self.position = self.size
-        #print("Open buy order successed with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]) + " with total cash $" + str(self.cash_total))
+        # print(f"Open buy order successed with close price {self.df['Close'].iloc[index]} on {self.df['Datetime'].iloc[index]} with total cash ${self.cash_total}")
         return True
 
     def sell(self, index):  # open sell order
@@ -39,7 +39,7 @@ class Player:
 
         self.last_order_index = index   # record the index during order made
         self.position = -self.size
-        #print("Open sell order successed with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]) + " with total cash $" + str(self.cash_total))
+        # print(f"Open sell order successed with close price {self.df['Close'].iloc[index]} on {self.df['Datetime'].iloc[index]} with total cash ${self.cash_total}")
         return True
 
     def close(self, index):  # calculating profit during trade
@@ -55,7 +55,7 @@ class Player:
 
         self.cash_total += profit
         self.position = 0
-        #print("Successed closing order with close price " + str(self.df['Close'].iloc[index]) + " on " + str(self.df['Datetime'].iloc[index]) + ' and earning ' + str(profit) + ' with total earning $' + str(self.cash_total))
+        # print(f"Successed closing order with close price {self.df['Close'].iloc[index]} on {self.df['Datetime'].iloc[index]} and earning {profit} with total earning ${self.cash_total}")
 
         return profit
 
