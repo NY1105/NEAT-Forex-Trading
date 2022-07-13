@@ -19,4 +19,4 @@ def param_gen(amount):
         print(f'price[{i}],\nvolume[{i}],')
     return
 
-param_gen(60)
+# param_gen(60)

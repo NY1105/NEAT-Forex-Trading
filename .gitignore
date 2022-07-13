@@ -4,8 +4,19 @@
 # virtual environment
 venv/
 
+
 # training data set
 # data/
+
+
+#checkpoints
+checkpoints/
+
+
+#save .csv
+fitness_history.csv
+speciation.csv
+species_fitness.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
