@@ -6,11 +6,11 @@ venv/
 
 
 # training data set
-# data/
+csv/
 
 
 #checkpoints
-checkpoints/
+# checkpoints/
 
 
 #save .csv

@@ -27,4 +27,4 @@ def param_gen(amount):
     return
 
 
-# param_gen(60)
+# param_gen(30)

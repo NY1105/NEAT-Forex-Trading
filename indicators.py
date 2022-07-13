@@ -5,9 +5,9 @@ from utils import *
 from collections import deque
 
 SYMBOL = 'EURUSD'
-START_DATE = date(2022, 6, 14)
-END_DATE = date(2022, 6, 24)
-#fetch([SYMBOL], START_DATE, END_DATE)
+START_DATE = date(2022, 7, 6)
+END_DATE = date(2022, 7, 12)
+# fetch([SYMBOL], START_DATE, END_DATE)
 
 
 class Indicators:
