@@ -2,6 +2,7 @@ import pandas as pd
 from fetch import *
 from datetime import date
 from utils import *
+from collections import deque
 
 SYMBOL = 'EURUSD'
 START_DATE = date(2022, 6, 14)
@@ -19,8 +20,8 @@ class Indicators:
         self.df['RSI'] = rsi(self.df)
         self.df.dropna(inplace=True)
         self.df.reset_index(drop=True, inplace=True)
-        self.closes = []
-        self.volumes = []
+        self.closes = deque()
+        self.volumes = deque()
 
     def get_df(self):
         return self.df
@@ -64,8 +65,8 @@ class Indicators:
             self.closes = [0 for i in range(lookback)]
             self.volumes = [0 for i in range(lookback)]
         else:
-            self.closes.pop(0)
+            self.closes.popleft()
             self.closes.append(self.df['Close'].iloc[index])
-            self.volumes.pop(0)
+            self.volumes.popleft()
             self.volumes.append(self.df['Volume'].iloc[index])
         return self.closes, self.volumes
