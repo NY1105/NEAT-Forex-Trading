@@ -75,6 +75,7 @@ def eval_genomes(genomes, config):
 
 def run_neat(config_path):
     p = neat.Population(config)
+    # p = neat.Checkpointer.restore_checkpoint('checkpoints/best.pickle')
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
