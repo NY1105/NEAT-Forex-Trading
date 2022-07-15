@@ -1,7 +1,7 @@
-from cgi import test
 import os
 import neat
 import pickle
+from pathlib import Path
 
 from indicators import Indicators
 from player import Player
@@ -40,22 +40,20 @@ class Trade:
             index += 1
 
     def decision_to_action(self, net, index, position, is_train):
-        price, volume = self.indicators.get_past_data(index, 30)
+        price, volume = self.indicators.get_past_data(index, 15)
         if position > 0:
             position = 1
         elif position < 0:
             position = -1
-        output = net.activate((price[0], price[1], price[2], price[3], price[4], price[5], price[6], price[7], price[8], price[9], price[10], price[11], price[12], price[13], price[14], price[15], price[16], price[17], price[18], price[19], price[20], price[21], price[22], price[23], price[24], price[25], price[26], price[27], price[28], price[29], volume[0], volume[1], volume[2], volume[3], volume[4], volume[5], volume[6], volume[7], volume[8], volume[9], volume[10], volume[11], volume[12], volume[13], volume[14], volume[15], volume[16], volume[17], volume[18], volume[19], volume[20], volume[21], volume[22], volume[23], volume[24], volume[25], volume[26], volume[27], volume[28], volume[29], position))
+        output = net.activate((price[0],price[1],price[2],price[3],price[4],price[5],price[6],price[7],price[8],price[9],price[10],price[11],price[12],price[13],price[14],volume[0],volume[1],volume[2],volume[3],volume[4],volume[5],volume[6],volume[7],volume[8],volume[9],volume[10],volume[11],volume[12],volume[13],volume[14], position))
         decision = output.index(max(output))
 
         if decision == 0:
-            record = self.traders.buy(index)
-            if record and not is_train:
+            if self.traders.buy(index) and not is_train:
                 print(f'Buy Price: {price[-1]}')
 
         elif decision == 1:
-            record = self.traders.sell(index)
-            if record and not is_train:
+            if self.traders.sell(index) and not is_train:
                 print(f'Sell Price: {price[-1]}')
 
         elif decision == 2:
@@ -63,7 +61,7 @@ class Trade:
             if is_train:
                 self.genome.fitness += profit
             else:
-                print(f'Close Price: {price[-1]}')
+                print(f'Close Price: {price[-1]}, Profit: {profit}')
 
 
 def eval_genomes(genomes, config):
@@ -82,8 +80,8 @@ def run_neat(config_path):
 
     winner = p.run(eval_genomes, 20)
 
-    # checkpoint_root = 'checkpoints/'
-    # checkpoint_root.mkdir(parents=True, exist_ok=True)
+    checkpoint_root = Path('checkpoints/')
+    checkpoint_root.mkdir(parents=True, exist_ok=True)
     with open("checkpoints/best.pickle", "wb") as f:
         pickle.dump(winner, f)
 
@@ -107,3 +105,4 @@ if __name__ == '__main__':
 
     # run_neat(config)
     test_best_network(config)
+

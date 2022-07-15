@@ -44,7 +44,7 @@ def get_minute_bars_from_bi5_candlestick(date, symbols):
             save_root = DATA_ROOT / 'dukascopy' / f'{stripped}' / f'{price_type}'
             save_root.mkdir(parents=True, exist_ok=True)
 
-            save_path = save_root / f'{month}_{day}.bi5'
+            save_path = save_root / f'{year}_{month}_{day}.bi5'
             # try to get bi5 file from source
 
             # if not os.path.isfile(save_path):
@@ -85,7 +85,7 @@ def get_minute_bars_from_bi5_candlestick(date, symbols):
 
                 df = pd.DataFrame(data=df, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
 
-            csv_path = CSV_ROOT / f'{stripped}.csv'
+            csv_path = CSV_ROOT / f'{stripped}_{year}_{month}.csv'
 
             if not os.path.isfile(csv_path):
                 with open(csv_path, "w") as csv_file:
@@ -100,7 +100,9 @@ def fetch(symbols: list, start=START_DATE, end=END_DATE):
     for symbol in symbols:
         stripped = symbol.replace('/', '')
         stripped = stripped.replace('.', '')
-        csv_path = CSV_ROOT / f'{stripped}.csv'
+        # csv_path = CSV_ROOT / f'{stripped}.csv'
+        year, month, day = start.isoformat().split('-')
+        csv_path = CSV_ROOT / f'{stripped}_{year}_{month}.csv'
         if os.path.isfile(csv_path):
             os.remove(csv_path)
 

@@ -6,8 +6,8 @@ venv/
 
 
 # training data set
-csv/
-
+# data/
+dukascopy/
 
 #checkpoints
 # checkpoints/

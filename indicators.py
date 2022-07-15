@@ -5,8 +5,9 @@ from utils import *
 from collections import deque
 
 SYMBOL = 'EURUSD'
-START_DATE = date(2022, 7, 6)
-END_DATE = date(2022, 7, 12)
+START_DATE = date(2022, 6, 20)
+END_DATE = date(2022, 6, 24)
+MODE = 'train'
 # fetch([SYMBOL], START_DATE, END_DATE)
 
 
@@ -14,7 +15,7 @@ class Indicators:
     def __init__(self):
 
         # self.df = pd.read_csv(f'{SYMBOL}.csv')
-        self.df = pd.read_csv(f'data/csv/{SYMBOL}.csv')
+        self.df = pd.read_csv(f'data/csv/_{SYMBOL}_{MODE}.csv')
         self.df['FastSMA'] = self.df['Close'].rolling(50, min_periods=50).mean().fillna(self.df['Close'])
         self.df['SlowSMA'] = self.df['Close'].rolling(100, min_periods=100).mean().fillna(self.df['Close'])
         self.df['RSI'] = rsi(self.df)
@@ -49,12 +50,11 @@ class Indicators:
         return (self.df['FastSMA'].iloc[index] - self.df['SlowSMA'].iloc[index]) / self.df['SlowSMA'].iloc[index]
 
     def get_past_data(self, index, lookback=10):
-        if index < lookback or len(self.closes) < lookback:
+        if len(self.closes) < lookback:
             self.closes = deque(0 for i in range(lookback))
             self.volumes = deque(0 for i in range(lookback))
-        else:
-            self.closes.popleft()
-            self.closes.append(self.df['Close'].iloc[index])
-            self.volumes.popleft()
-            self.volumes.append(self.df['Volume'].iloc[index])
+        self.closes.popleft()
+        self.closes.append(self.df['Close'].iloc[index])
+        self.volumes.popleft()
+        self.volumes.append(self.df['Volume'].iloc[index])
         return self.closes, self.volumes
