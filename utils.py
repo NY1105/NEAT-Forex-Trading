@@ -37,17 +37,17 @@ def param_gen(amount):
 # param_gen(15)
 
 
-def daysinwhichmonth(x: int, k):
-    if x < 1:
-        x += 12
-    if x > 12:
-        x -= 12
-    if x in (1, 3, 5, 7, 8, 10, 12):
+def daysinwhichmonth(month: int, year):
+    if month < 1:
+        month += 12
+    if month > 12:
+        month -= 12
+    if month in (1, 3, 5, 7, 8, 10, 12):
         return 31
-    if x in (4, 6, 9, 11):
+    if month in (4, 6, 9, 11):
         return 30
-    if x == 2:
-        if isleap(k):
+    if month == 2:
+        if isleap(year):
             return 29
         else:
             return 28
@@ -145,3 +145,9 @@ def get_deque(today, mode='train', symbol=SYMBOL):
     df.to_csv(save_file)
 
 
+def update_date(date):
+    date[2] += 7
+    if date[2] > daysinwhichmonth(date[1], date[0]):
+        date[1] += 1
+        if date[1] > 12:
+            date[0] += 1
