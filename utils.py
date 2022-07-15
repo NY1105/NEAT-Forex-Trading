@@ -146,8 +146,15 @@ def get_deque(today, mode='train', symbol=SYMBOL):
 
 
 def update_date(date):
-    date[2] += 7
-    if date[2] > daysinwhichmonth(date[1], date[0]):
-        date[1] += 1
-        if date[1] > 12:
-            date[0] += 1
+    '''
+    add 7 days after training
+    check if exceed month or year boundary
+    curr_year, curr_month, curr_day = date[0], date[1], date[2]
+    '''
+    year, month, day = date
+    day += 7
+    if day > daysinwhichmonth(month, year):
+        month += 1
+        if month > 12:
+            year += 1
+    return (year, month, day)

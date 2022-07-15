@@ -1,8 +1,9 @@
 import datetime
+import gzip
 import os
+import random
 import neat
 import pickle
-from pathlib import Path
 
 from indicators import Indicators
 from player import Player
@@ -75,20 +76,20 @@ def eval_genomes(genomes, config):
 
 
 def run_neat(config_path):
-    if os.path.exists('checkpoints/best.pickle'):
-        p = neat.Checkpointer.restore_checkpoint('checkpoints/best.pickle')
+    p = None
+    # Restore checkpoint if checkpoint exists
+    if os.path.exists('neat-checkpoint-4'):
+        p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
     else:
         p = neat.Population(config)
 
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    # p.add_reporter(neat.Checkpointer(1))
+    p.add_reporter(neat.Checkpointer(5))  # overwrite checkpoint every 5 generations
 
-    winner = p.run(eval_genomes, 20)
+    winner = p.run(eval_genomes, 5)
 
-    checkpoint_root = Path('checkpoints/')
-    checkpoint_root.mkdir(parents=True, exist_ok=True)
     with open("checkpoints/best.pickle", "wb") as f:
         pickle.dump(winner, f)
 
@@ -103,6 +104,7 @@ def test_best_network(config):
 
 
 def start_train():
+    # add training config in the first training
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config.txt')
     global config
@@ -116,8 +118,10 @@ if __name__ == '__main__':
     start_train()
     today = (2012, 5, 12)
     while True:
-        utils.get_deque(today, 'train', 'EURUSD')
+        today = utils.update_date(today)  # update df before each training
+        utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
         run_neat(config)
-        utils.update_date(today)
+
+        # break the training loop if arrived current date
         if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2022, 7, 14):
             break
