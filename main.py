@@ -11,27 +11,30 @@ from player import Player
 import os.path
 from pathlib import Path
 import utils
+import visualize
+
+SYMBOL = 'EURUSD'
 
 
 class Trade:
-    def __init__(self):
-        self.indicators = Indicators()
+    def __init__(self,mode):
+        self.indicators = Indicators(mode)
         self.df = self.indicators.get_df()
         self.traders = Player(self.df)
 
     def test_ai(self, net):
-        utils.result_checkdir(self.indicators.SYMBOL)
-        self.df = self.indicators.get_df
+        utils.result_checkdir(SYMBOL)
         index = 0
-        self.f = open(f'{self.indicators.SYMBOL}_result.csv', "a")
+        # self.f = open(f'{SYMBOL}_result.csv', "a")
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, False)
             if index == len(self.df) - 1:
                 break
             index += 1
-        self.f.close()
+        # self.f.close()
         print(self.traders.cash_total)
+        visualize.visualise()
 
     def train_ai(self, genome, config, i):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -62,12 +65,14 @@ class Trade:
         if decision == 0:
             if self.traders.buy(index) and not is_train:
                 print(f'Buy Price: {price[-1]}')
-                self.f.write(self.df.iloc[index].index, 'Buy', price[-1], 0)
+                with open(f'result/{SYMBOL}_result.csv', "a") as f:
+                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Buy,{price[-1]},0\n')
 
         elif decision == 1:
             if self.traders.sell(index) and not is_train:
                 print(f'Sell Price: {price[-1]}')
-                self.f.write(self.df.iloc[index].index, 'Sell', price[-1], 0)
+                with open(f'result/{SYMBOL}_result.csv', "a") as f:
+                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Sell,{price[-1]},0\n')
 
         elif decision == 2:
             profit = self.traders.close(index)
@@ -75,13 +80,14 @@ class Trade:
                 self.genome.fitness += profit
             else:
                 print(f'Close Price: {price[-1]}, Profit: {profit}')
-                self.f.write(self.df.iloc[index].index, 'Close', price[-1], profit)
+                with open(f'result/{SYMBOL}_result.csv', "a") as f:
+                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Close,{price[-1]},{profit}\n')
 
 
 def eval_genomes(genomes, config):
     for i, (genome_id, genome) in enumerate(genomes):
         genome.fitness = 0
-        trade = Trade()
+        trade = Trade('train')
         trade.train_ai(genome, config, i)
 
 
@@ -109,7 +115,7 @@ def test_best_network(config):
         winner = pickle.load(f)
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 
-    trade = Trade()
+    trade = Trade('test')
     trade.test_ai(winner_net)
 
 
@@ -121,7 +127,7 @@ def start_train():
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_path)
-    run_neat(config)
+    
 
 
 if __name__ == '__main__':
@@ -131,7 +137,7 @@ if __name__ == '__main__':
             line = f.readline()
         date = line.split(',')
         today = (int(date[0]), int(date[1]), int(date[2]))
-
+    start_train()
     while True:
         today = utils.update_date(today)  # update df before each training
 
@@ -139,11 +145,11 @@ if __name__ == '__main__':
         if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2012, 7, 14):
             break
 
-        utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
-        start_train()
+        utils.get_deque(today, 'train', 'EURUSD') # fetch new csv to data/csv
+        
+        
+        run_neat(config)
 
         with open('trained.txt', 'w') as f:  # write the trained date to txt
             f.write(f'{today[0]},{today[1]},{today[2]}')
-
-    today = utils.update_date(today)
     test_best_network(config)
