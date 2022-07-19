@@ -17,7 +17,7 @@ SYMBOL = 'EURUSD'
 
 
 class Trade:
-    def __init__(self,mode):
+    def __init__(self, mode):
         self.indicators = Indicators(mode)
         self.df = self.indicators.get_df()
         self.traders = Player(self.df)
@@ -127,7 +127,6 @@ def start_train():
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_path)
-    
 
 
 if __name__ == '__main__':
@@ -142,12 +141,11 @@ if __name__ == '__main__':
         today = utils.update_date(today)  # update df before each training
 
         # break the training loop if arrived current date
-        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2012, 7, 14):
+        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2012, 8, 31):
             break
 
-        utils.get_deque(today, 'train', 'EURUSD') # fetch new csv to data/csv
-        
-        
+        utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
+
         run_neat(config)
 
         with open('trained.txt', 'w') as f:  # write the trained date to txt
