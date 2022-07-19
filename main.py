@@ -2,6 +2,7 @@ import datetime
 import gzip
 import os
 import random
+from turtle import update
 import neat
 import pickle
 
@@ -143,3 +144,6 @@ if __name__ == '__main__':
 
         with open('trained.txt', 'w') as f:  # write the trained date to txt
             f.write(f'{today[0]},{today[1]},{today[2]}')
+
+    today = utils.update_date(today)
+    test_best_network(config)
