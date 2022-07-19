@@ -141,7 +141,7 @@ if __name__ == '__main__':
         today = utils.update_date(today)  # update df before each training
 
         # break the training loop if arrived current date
-        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2012, 8, 31):
+        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2012, 6, 28):
             break
 
         utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
