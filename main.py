@@ -116,13 +116,21 @@ def start_train():
 
 if __name__ == '__main__':
     today = (2012, 5, 12)
+    if os.path.exists('neat-checkpoint-4'):
+        with open('trained.txt') as f:
+            line = f.readline()
+        date = line.split(',')
+        today = (int(date[0]), int(date[1]), int(date[2]))
+
     while True:
+        today = utils.update_date(today)  # update df before each training
+
         # break the training loop if arrived current date
         if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2022, 7, 14):
             break
+
         utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
         start_train()
 
-        with open('trained.txt', 'w') as f:
-            f.write(str(today))
-        today = utils.update_date(today)  # update df after each training
+        with open('trained.txt', 'w') as f:  # write the trained date to txt
+            f.write(f'{today[0]},{today[1]},{today[2]}')
