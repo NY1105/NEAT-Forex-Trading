@@ -153,9 +153,12 @@ def update_date(date):
     '''
     year, month, day = date
     day += 7
-    if day > daysinwhichmonth(month, year):
+    have_days = daysinwhichmonth(month, year)
+    if day > have_days:
+        day -= have_days
         month += 1
         if month > 12:
+            month -= 12
             year += 1
     return (year, month, day)
 
