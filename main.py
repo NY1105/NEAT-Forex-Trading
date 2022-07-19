@@ -8,6 +8,7 @@ import pickle
 from indicators import Indicators
 from player import Player
 import os.path
+from pathlib import Path
 import utils
 
 
@@ -18,13 +19,17 @@ class Trade:
         self.traders = Player(self.df)
 
     def test_ai(self, net):
+        utils.result_checkdir(self.indicators.SYMBOL)
+        self.df = self.indicators.get_df
         index = 0
+        self.f = open(f'{self.indicators.SYMBOL}_result.csv', "a")
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, False)
             if index == len(self.df) - 1:
                 break
             index += 1
+        self.f.close()
         print(self.traders.cash_total)
 
     def train_ai(self, genome, config, i):
@@ -45,6 +50,7 @@ class Trade:
 
     def decision_to_action(self, net, index, position, is_train):
         price, volume = self.indicators.get_past_data(index, 15)
+
         if position > 0:
             position = 1
         elif position < 0:
@@ -55,10 +61,12 @@ class Trade:
         if decision == 0:
             if self.traders.buy(index) and not is_train:
                 print(f'Buy Price: {price[-1]}')
+                self.f.write(self.df.iloc[index].index, 'Buy', price[-1], 0)
 
         elif decision == 1:
             if self.traders.sell(index) and not is_train:
                 print(f'Sell Price: {price[-1]}')
+                self.f.write(self.df.iloc[index].index, 'Sell', price[-1], 0)
 
         elif decision == 2:
             profit = self.traders.close(index)
@@ -66,6 +74,7 @@ class Trade:
                 self.genome.fitness += profit
             else:
                 print(f'Close Price: {price[-1]}, Profit: {profit}')
+                self.f.write(self.df.iloc[index].index, 'Close', price[-1], profit)
 
 
 def eval_genomes(genomes, config):

@@ -158,3 +158,14 @@ def update_date(date):
         if month > 12:
             year += 1
     return (year, month, day)
+
+
+def result_checkdir(symbol=SYMBOL):
+    save_name = f'{symbol}_result.csv'
+    save_path = Path('result/')
+    save_file = save_path / save_name
+    if os.path.isfile(save_file):
+        os.remove(save_file)
+    save_path.mkdir(parents=True, exist_ok=True)
+    with open(save_file, 'w') as f:
+        f.write('Index,Type,Price,Profit')
