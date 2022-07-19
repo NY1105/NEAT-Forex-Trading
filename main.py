@@ -115,13 +115,14 @@ def start_train():
 
 
 if __name__ == '__main__':
-    start_train()
     today = (2012, 5, 12)
     while True:
-        today = utils.update_date(today)  # update df before each training
-        utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
-        run_neat(config)
-
         # break the training loop if arrived current date
         if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2022, 7, 14):
             break
+        utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
+        start_train()
+
+        with open('trained.txt', 'w') as f:
+            f.write(str(today))
+        today = utils.update_date(today)  # update df after each training
