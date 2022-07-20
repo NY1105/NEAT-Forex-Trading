@@ -3,18 +3,18 @@ import plotly.graph_objects as go
 import pandas as pd
 
 SYMBOL = 'EURUSD'
+MODE = 'test'
 
-
-def visualise():
-    df = pd.read_csv(f'data/csv/_{SYMBOL}_test.csv')
+def visualise(mode=MODE):
+    df = pd.read_csv(f'data/csv/_{SYMBOL}_{mode}.csv')
     df = df.set_index(pd.DatetimeIndex(df['Unnamed: 0'].values))
     df.drop(df[df.Volume == 0].index, inplace=True)
 
-    record = pd.read_csv(f'result/{SYMBOL}_result.csv')
+    record = pd.read_csv(f'result/{SYMBOL}_{mode}_result.csv')
     buy = record.drop(record[record.Type != 'Buy'].index)
-    record = pd.read_csv(f'result/{SYMBOL}_result.csv')
+    record = pd.read_csv(f'result/{SYMBOL}_{mode}_result.csv')
     sell = record.drop(record[record.Type != 'Sell'].index)
-    record = pd.read_csv(f'result/{SYMBOL}_result.csv')
+    record = pd.read_csv(f'result/{SYMBOL}_{mode}_result.csv')
     close = record.drop(record[record.Type != 'Close'].index)
     figure = go.Figure(
         data=[
@@ -29,22 +29,25 @@ def visualise():
                 decreasing_line_color='red'
             ),
             go.Scatter(
+                mode='markers',
                 name='Buy',
-                marker=dict(color='Blue', size=14, line=dict(width=12, color='DarkSlateGrey')),
+                marker=dict(color='Blue', size=11, line=dict(width=2, color='DarkSlateGrey')),
                 line=dict(width=0),
                 y=buy['Price'],
                 x=buy['Index']
             ),
             go.Scatter(
+                mode='markers',
                 name='Sell',
-                marker=dict(color='Orange', size=14, line=dict(width=12, color='DarkSlateGrey')),
+                marker=dict(color='Orange', size=11, line=dict(width=2, color='DarkSlateGrey')),
                 line=dict(width=0),
                 y=sell['Price'],
                 x=sell['Index']
             ),
             go.Scatter(
+                mode='markers',
                 name='Close',
-                marker=dict(color='Lime', size=13, line=dict(width=12, color='DarkSlateGrey')),
+                marker=dict(color='Lime', size=11, line=dict(width=2, color='DarkSlateGrey')),
                 line=dict(width=0),
                 y=close['Price'],
                 x=close['Index']
@@ -53,3 +56,5 @@ def visualise():
     )
 
     figure.show()
+
+# visualise('train')

@@ -1,5 +1,6 @@
 import datetime
 import os
+from pyexpat import model
 import neat
 import pickle
 
@@ -19,7 +20,7 @@ class Trade:
         self.traders = Player(self.df)
 
     def test_ai(self, net):
-        utils.result_checkdir(SYMBOL)
+        utils.result_checkdir(SYMBOL,'test')
         index = 0
         # self.f = open(f'{SYMBOL}_result.csv', "a")
         while True:
@@ -33,6 +34,7 @@ class Trade:
         visualize.visualise()
 
     def train_ai(self, genome, config, i):
+        utils.result_checkdir(SYMBOL,'train')
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
 
@@ -49,7 +51,9 @@ class Trade:
 
     def decision_to_action(self, net, index, position, is_train):
         price, volume, pricepct, volumepct = self.indicators.get_past_data(index, 15)
-
+        mode = 'train'
+        if not is_train:
+            mode = 'test'
         if position > 0:
             position = 1
         elif position < 0:
@@ -60,22 +64,24 @@ class Trade:
         if decision == 0:
             if self.traders.buy(index) and not is_train:
                 print(f'Buy Price: {price[-1]}')
-                with open(f'result/{SYMBOL}_result.csv', "a") as f:
-                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Buy,{price[-1]},0\n')
+            with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
+                f.write(f'{self.df["Unnamed: 0"].iloc[index]},Buy,{price[-1]},0\n')
 
         elif decision == 1:
             if self.traders.sell(index) and not is_train:
                 print(f'Sell Price: {price[-1]}')
-                with open(f'result/{SYMBOL}_result.csv', "a") as f:
-                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Sell,{price[-1]},0\n')
+            with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
+                f.write(f'{self.df["Unnamed: 0"].iloc[index]},Sell,{price[-1]},0\n')
 
         elif decision == 2:
             profit = self.traders.close(index)
             if is_train:
                 self.genome.fitness += profit
+                with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
+                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Close,{price[-1]},{profit}\n')
             elif profit:
                 print(f'Close Price: {price[-1]}, Profit: {profit}')
-                with open(f'result/{SYMBOL}_result.csv', "a") as f:
+                with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
                     f.write(f'{self.df["Unnamed: 0"].iloc[index]},Close,{price[-1]},{profit}\n')
 
 
@@ -124,7 +130,16 @@ def init_train():
                          config_path)
 
 
-if __name__ == '__main__':
+def kickstart():
+    today = (2010, 3, 1)
+    if os.path.exists('neat-checkpoint-4'):
+        with open('trained.txt') as f:
+            line = f.readline()
+        date = line.split(',')
+        today = (int(date[0]), int(date[1]), int(date[2]))
+    init_train()
+
+def main():
     today = (2010, 3, 1)
     if os.path.exists('neat-checkpoint-4'):
         with open('trained.txt') as f:
@@ -137,7 +152,7 @@ if __name__ == '__main__':
         today = utils.update_date(today)  # update df before each training
 
         # break the training loop if arrived current date
-        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2011, 5, 30):
+        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2011, 12, 31):
             break
 
         utils.get_deque(today, 'train', SYMBOL)  # fetch new csv to data/csv
@@ -147,3 +162,7 @@ if __name__ == '__main__':
         with open('trained.txt', 'w') as f:  # write the trained date to txt
             f.write(f'{today[0]},{today[1]},{today[2]}')
     test_best_network(config)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from collections import deque
 import os
@@ -101,8 +101,8 @@ def get_test_startend(today, testing_period=TEST):
     curr_year, curr_month, curr_day = today[0], today[1], today[2]
     end_year, end_month, end_day = curr_year, curr_month, curr_day + testing_period
     while end_day > daysinwhichmonth(end_month, end_year):
-        end_month += 1
         end_day -= daysinwhichmonth(end_month, end_year)
+        end_month += 1
     if end_month > 12:
         end_year += 1
         end_month -= 12
@@ -146,6 +146,11 @@ def get_deque(today, mode='train', symbol=SYMBOL):
     df.to_csv(save_file)
 
 
+def get_ks_deque(now=(2010,3,1,0,0,0), symbol=SYMBOL):
+    target_time = datetime(now)-timedelta(days=30)
+    pass
+
+
 def update_date(date):
     '''
     add 7 days after training
@@ -164,8 +169,8 @@ def update_date(date):
     return (year, month, day)
 
 
-def result_checkdir(symbol=SYMBOL):
-    save_name = f'{symbol}_result.csv'
+def result_checkdir(symbol=SYMBOL, mode='test'):
+    save_name = f'{symbol}_{mode}_result.csv'
     save_path = Path('result/')
     save_file = save_path / save_name
     if os.path.isfile(save_file):
