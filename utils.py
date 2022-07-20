@@ -101,8 +101,8 @@ def get_test_startend(today, testing_period=TEST):
     curr_year, curr_month, curr_day = today[0], today[1], today[2]
     end_year, end_month, end_day = curr_year, curr_month, curr_day + testing_period
     while end_day > daysinwhichmonth(end_month, end_year):
-        end_month += 1
         end_day -= daysinwhichmonth(end_month, end_year)
+        end_month += 1
     if end_month > 12:
         end_year += 1
         end_month -= 12

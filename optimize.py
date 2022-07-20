@@ -1,13 +1,9 @@
-import datetime
-import os
-import neat
-import pickle
 
+import neat
+import os
+import pickle
 from indicators import Indicators
 from player import Player
-import os.path
-import utils
-import visualize
 
 SYMBOL = 'EURUSD'
 
@@ -19,20 +15,14 @@ class Trade:
         self.traders = Player(self.df)
 
     def test_ai(self, net):
-        utils.result_checkdir(SYMBOL)
-        index = 0
-        # self.f = open(f'{SYMBOL}_result.csv', "a")
-        while True:
-            trader_info = self.traders.update()
-            self.decision_to_action(net, index, trader_info.position, False)
-            if index == len(self.df) - 1:
-                break
-            index += 1
-        # self.f.close()
-        print(self.traders.cash_total)
-        visualize.visualise()
+        pass
 
     def train_ai(self, genome, config, i):
+        """
+        Train the AI by passing two NEAT neural networks and the NEAt config object.
+        These AI's will play against eachother to determine their fitness.
+        """
+
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
 
@@ -80,70 +70,43 @@ class Trade:
 
 
 def eval_genomes(genomes, config):
+    """
+    Run each genome against eachother one time to determine the fitness.
+    """
+
     for i, (genome_id, genome) in enumerate(genomes):
         genome.fitness = 0
         trade = Trade('train')
         trade.train_ai(genome, config, i)
 
 
-def run_neat(config_path):
-    p = None
-    # Restore checkpoint if checkpoint exists
-    if os.path.exists('neat-checkpoint-4'):
-        p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    else:
-        p = neat.Population(config)
-
+def run_neat(config):
+    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-85')
+    p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5))  # overwrite checkpoint every 5 generations
 
-    winner = p.run(eval_genomes, 5)
-
-    with open("checkpoints/best.pickle", "wb") as f:
+    winner = p.run(eval_genomes, 50)
+    with open("best.pickle", "wb") as f:
         pickle.dump(winner, f)
 
 
 def test_best_network(config):
-    with open("checkpoints/best.pickle", "rb") as f:
+    with open("best.pickle", "rb") as f:
         winner = pickle.load(f)
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 
-    trade = Trade('test')
+    trade = Trade()
     trade.test_ai(winner_net)
 
 
-def init_train():
-    # add training config in the first training
+if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config.txt')
-    global config
+
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_path)
 
-
-if __name__ == '__main__':
-    today = (2010, 3, 1)
-    if os.path.exists('neat-checkpoint-4'):
-        with open('trained.txt') as f:
-            line = f.readline()
-        date = line.split(',')
-        today = (int(date[0]), int(date[1]), int(date[2]))
-    init_train()
-    utils.get_deque(today, 'test', SYMBOL)
-    while True:
-        today = utils.update_date(today)  # update df before each training
-
-        # break the training loop if arrived current date
-        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2011, 2, 20):
-            break
-
-        utils.get_deque(today, 'train', SYMBOL)  # fetch new csv to data/csv
-
-        run_neat(config)
-
-        with open('trained.txt', 'w') as f:  # write the trained date to txt
-            f.write(f'{today[0]},{today[1]},{today[2]}')
-    test_best_network(config)
+    run_neat(config)
