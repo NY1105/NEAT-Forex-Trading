@@ -1,7 +1,8 @@
 import pandas as pd
+from datetime import datetime, timedelta
 
 SYMBOL = 'EURUSD'
-MODE = 'train'
+MODE = 'test'
 
 df = pd.read_csv(f'data/csv/{SYMBOL}/_{SYMBOL}_{MODE}.csv')
 df['FastSMA'] = df['Close'].rolling(50, min_periods=50).mean().fillna(df['Close'])

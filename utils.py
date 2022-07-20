@@ -148,7 +148,7 @@ def get_deque(today, mode='train', symbol=SYMBOL):
 
 
 def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
-    start_time = datetime(now) - timedelta(days=30)
+    start_time = datetime(now[0],now[1],now[2],now[3],now[4],now[5]) - timedelta(days=30)
     if i == 0:
         end_time = start_time + timedelta(hours=1)
     if i == 1:
