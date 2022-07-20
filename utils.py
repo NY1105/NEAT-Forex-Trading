@@ -1,3 +1,4 @@
+from tracemalloc import start
 import pandas as pd
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -146,9 +147,52 @@ def get_deque(today, mode='train', symbol=SYMBOL):
     df.to_csv(save_file)
 
 
-def get_ks_deque(now=(2010,3,1,0,0,0), symbol=SYMBOL):
-    target_time = datetime(now)-timedelta(days=30)
-    pass
+def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
+    start_time = datetime(now) - timedelta(days=30)
+    if i == 0:
+        end_time = start_time + timedelta(hours=1)
+    if i == 1:
+        end_time = start_time + timedelta(hours=2)
+    if i == 2:
+        end_time = start_time + timedelta(hours=4)
+    if i == 3:
+        end_time = start_time + timedelta(hours=8)
+    if i == 4:
+        end_time = start_time + timedelta(hours=24)
+    if i == 5:
+        end_time = start_time + timedelta(hours=72)
+    if i == 6:
+        end_time = start_time + timedelta(hours=168)
+    last2_path, last1_path, curr_path, next_path = to_read((now[0],now[1],now[2]), symbol)
+    last2df = pd.read_csv(f'data/csv/{last2_path}')
+    last1df = pd.read_csv(f'data/csv/{last1_path}')
+    currdf = pd.read_csv(f'data/csv/{curr_path}')
+    nextdf = pd.read_csv(f'data/csv/{next_path}')
+    record = False
+    res = []
+    indextime = []
+    for i in (last2df, last1df, currdf, nextdf):  # search
+        for index in range(len(i)):
+            c1, c2, c3 = (i['Datetime'].iloc[index][:10]).split('-')
+            c4 = (i['Datetime'].iloc[index][11:13])
+            c = datetime(int(c1), int(c2), int(c3), int(c4), 0, 0)
+            if c == start_time:
+                record = True
+            if c == end_time:
+                record = False
+                break
+            if record:
+                indextime.append(i['Datetime'].iloc[index])
+                res.append([i['Open'].iloc[index], i['High'].iloc[index], i['Low'].iloc[index], i['Close'].iloc[index], i['Volume'].iloc[index]])
+                # res = pd.concat([res,i.iloc[index]])
+    df = pd.DataFrame(data=res, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
+    save_name = f'_{symbol}_train.csv'
+    save_path = Path('data/csv')
+    save_file = save_path / save_name
+    save_path.mkdir(parents=True, exist_ok=True)
+    if os.path.isfile(save_file):
+        os.remove(save_file)
+    df.to_csv(save_file)
 
 
 def update_date(date):
