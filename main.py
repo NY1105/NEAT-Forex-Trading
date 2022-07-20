@@ -1,15 +1,11 @@
 import datetime
-import gzip
 import os
-import random
-from turtle import update
 import neat
 import pickle
 
 from indicators import Indicators
 from player import Player
 import os.path
-from pathlib import Path
 import utils
 import visualize
 
