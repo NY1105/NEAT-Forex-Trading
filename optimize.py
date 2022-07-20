@@ -114,6 +114,6 @@ def start_train():
 
 
 if __name__ == '__main__':
-    for i in range(5):
-        get_ks_deque(i)
+    for i in range(7):
+        get_ks_deque(i,(2011,12,30,0,0,0),'EURUSD')
         start_train()
