@@ -14,7 +14,7 @@ MODE = 'train'
 class Indicators:
     def __init__(self,mode):
 
-        self.df = pd.read_csv(f'data/csv/_{SYMBOL}_{mode}.csv')
+        self.df = pd.read_csv(f'data/csv/{SYMBOL}/_{SYMBOL}_{mode}.csv')
         self.df['FastSMA'] = self.df['Close'].rolling(50, min_periods=50).mean().fillna(self.df['Close'])
         self.df['SlowSMA'] = self.df['Close'].rolling(100, min_periods=100).mean().fillna(self.df['Close'])
         self.df['ClosePct'] = self.df['Close'].pct_change(fill_method='ffill')

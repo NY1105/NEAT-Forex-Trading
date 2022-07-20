@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime, date, timedelta
+from lib2to3.pygram import Symbols
 from operator import index
 from pathlib import Path
 import concurrent.futures
@@ -85,7 +86,7 @@ def get_minute_bars_from_bi5_candlestick(date, symbols):
 
                 df = pd.DataFrame(data=df, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
 
-            csv_path = CSV_ROOT / f'{stripped}_{year}_{month}.csv'
+            csv_path = CSV_ROOT / stripped / f'{stripped}_{year}_{month}.csv'
 
             if not os.path.isfile(csv_path):
                 with open(csv_path, "w") as csv_file:
@@ -98,11 +99,16 @@ def get_minute_bars_from_bi5_candlestick(date, symbols):
 
 def fetch(symbols: list, start=START_DATE, end=END_DATE):
     for symbol in symbols:
+
         stripped = symbol.replace('/', '')
         stripped = stripped.replace('.', '')
+
+        save_root = CSV_ROOT / stripped
+        save_root.mkdir(parents=True, exist_ok=True)
+
         # csv_path = CSV_ROOT / f'{stripped}.csv'
         year, month, day = start.isoformat().split('-')
-        csv_path = CSV_ROOT / f'{stripped}_{year}_{month}.csv'
+        csv_path = CSV_ROOT / stripped / f'{stripped}_{year}_{month}.csv'
         if os.path.isfile(csv_path):
             os.remove(csv_path)
 

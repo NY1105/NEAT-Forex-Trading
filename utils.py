@@ -117,10 +117,10 @@ def get_deque(today, mode='train', symbol=SYMBOL):
         start, end = get_test_startend(today)
     dstart, dend = date(start[0], start[1], start[2]), date(end[0], end[1], end[2])
     last2_path, last1_path, curr_path, next_path = to_read(today, symbol)
-    last2df = pd.read_csv(f'data/csv/{last2_path}')
-    last1df = pd.read_csv(f'data/csv/{last1_path}')
-    currdf = pd.read_csv(f'data/csv/{curr_path}')
-    nextdf = pd.read_csv(f'data/csv/{next_path}')
+    last2df = pd.read_csv(f'data/csv/{symbol}/{last2_path}')
+    last1df = pd.read_csv(f'data/csv/{symbol}/{last1_path}')
+    currdf = pd.read_csv(f'data/csv/{symbol}/{curr_path}')
+    nextdf = pd.read_csv(f'data/csv/{symbol}/{next_path}')
     record = False
     res = []
     indextime = []
@@ -139,7 +139,7 @@ def get_deque(today, mode='train', symbol=SYMBOL):
                 # res = pd.concat([res,i.iloc[index]])
     df = pd.DataFrame(data=res, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
     save_name = f'_{symbol}_{mode}.csv'
-    save_path = Path('data/csv')
+    save_path = Path(f'data/csv/{symbol}')
     save_file = save_path / save_name
     save_path.mkdir(parents=True, exist_ok=True)
     if os.path.isfile(save_file):
@@ -164,10 +164,10 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
     if i == 6:
         end_time = start_time + timedelta(hours=168)
     last2_path, last1_path, curr_path, next_path = to_read((now[0],now[1],now[2]), symbol)
-    last2df = pd.read_csv(f'data/csv/{last2_path}')
-    last1df = pd.read_csv(f'data/csv/{last1_path}')
-    currdf = pd.read_csv(f'data/csv/{curr_path}')
-    nextdf = pd.read_csv(f'data/csv/{next_path}')
+    last2df = pd.read_csv(f'data/csv/{symbol}/{last2_path}')
+    last1df = pd.read_csv(f'data/csv/{symbol}/{last1_path}')
+    currdf = pd.read_csv(f'data/csv/{symbol}/{curr_path}')
+    nextdf = pd.read_csv(f'data/csv/{symbol}/{next_path}')
     record = False
     res = []
     indextime = []
@@ -187,7 +187,7 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
                 # res = pd.concat([res,i.iloc[index]])
     df = pd.DataFrame(data=res, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
     save_name = f'_{symbol}_train.csv'
-    save_path = Path('data/csv')
+    save_path = Path('data/csv/{symbol}')
     save_file = save_path / save_name
     save_path.mkdir(parents=True, exist_ok=True)
     if os.path.isfile(save_file):
