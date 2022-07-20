@@ -4,6 +4,7 @@ import os
 import pickle
 from indicators import Indicators
 from player import Player
+from utils import get_ks_deque
 
 SYMBOL = 'EURUSD'
 
@@ -101,7 +102,7 @@ def test_best_network(config):
     trade.test_ai(winner_net)
 
 
-if __name__ == '__main__':
+def start_train():
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config.txt')
 
@@ -110,3 +111,9 @@ if __name__ == '__main__':
                          config_path)
 
     run_neat(config)
+
+
+if __name__ == '__main__':
+    for i in range(5):
+        get_ks_deque(i)
+        start_train()
