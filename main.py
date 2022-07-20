@@ -132,6 +132,7 @@ if __name__ == '__main__':
         date = line.split(',')
         today = (int(date[0]), int(date[1]), int(date[2]))
     init_train()
+    utils.get_deque(today, 'test', SYMBOL)
     while True:
         today = utils.update_date(today)  # update df before each training
 
@@ -139,7 +140,7 @@ if __name__ == '__main__':
         if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2011, 5, 30):
             break
 
-        utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv
+        utils.get_deque(today, 'train', SYMBOL)  # fetch new csv to data/csv
 
         run_neat(config)
 

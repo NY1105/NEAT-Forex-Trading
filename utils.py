@@ -172,4 +172,4 @@ def result_checkdir(symbol=SYMBOL):
         os.remove(save_file)
     save_path.mkdir(parents=True, exist_ok=True)
     with open(save_file, 'w') as f:
-        f.write('Index,Type,Price,Profit')
+        f.write('Index,Type,Price,Profit\n')
