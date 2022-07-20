@@ -54,9 +54,15 @@ class Indicators:
     def get_past_data(self, index, lookback=10):
         if len(self.closes) < lookback:
             self.closes = deque(0 for i in range(lookback))
+            self.closespct = deque(0 for i in range(lookback))
             self.volumes = deque(0 for i in range(lookback))
+            self.volumespct = deque(0 for i in range(lookback))
         self.closes.popleft()
         self.closes.append(self.df['Close'].iloc[index])
+        self.closespct.popleft()
+        self.closespct.append(self.df['ClosePct'].iloc[index])
         self.volumes.popleft()
         self.volumes.append(self.df['Volume'].iloc[index])
-        return self.closes, self.volumes
+        self.volumespct.popleft()
+        self.volumespct.append(self.df['VolumePct'].iloc[index])
+        return self.closes, self.volumes, self.closespct, self.volumespct

@@ -44,7 +44,6 @@ class Trade:
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, True)
-
             if index == len(self.df) - 1:
                 profit = self.traders.close(len(self.df) - 1)
                 self.genome.fitness += profit
@@ -53,13 +52,13 @@ class Trade:
             index += 1
 
     def decision_to_action(self, net, index, position, is_train):
-        price, volume = self.indicators.get_past_data(index, 15)
+        price, volume, pricepct, volumepct = self.indicators.get_past_data(index, 15)
 
         if position > 0:
             position = 1
         elif position < 0:
             position = -1
-        output = net.activate((price[0], price[1], price[2], price[3], price[4], price[5], price[6], price[7], price[8], price[9], price[10], price[11], price[12], price[13], price[14], volume[0], volume[1], volume[2], volume[3], volume[4], volume[5], volume[6], volume[7], volume[8], volume[9], volume[10], volume[11], volume[12], volume[13], volume[14], position))
+        output = net.activate((pricepct[0], pricepct[1], pricepct[2], pricepct[3], pricepct[4], pricepct[5], pricepct[6], pricepct[7], pricepct[8], pricepct[9], pricepct[10], pricepct[11], pricepct[12], pricepct[13], pricepct[14], volumepct[0], volumepct[1], volumepct[2], volumepct[3], volumepct[4], volumepct[5], volumepct[6], volumepct[7], volumepct[8], volumepct[9], volumepct[10], volumepct[11], volumepct[12], volumepct[13], volumepct[14], position))
         decision = output.index(max(output))
 
         if decision == 0:
@@ -78,7 +77,7 @@ class Trade:
             profit = self.traders.close(index)
             if is_train:
                 self.genome.fitness += profit
-            else:
+            elif profit:
                 print(f'Close Price: {price[-1]}, Profit: {profit}')
                 with open(f'result/{SYMBOL}_result.csv', "a") as f:
                     f.write(f'{self.df["Unnamed: 0"].iloc[index]},Close,{price[-1]},{profit}\n')
@@ -119,7 +118,7 @@ def test_best_network(config):
     trade.test_ai(winner_net)
 
 
-def start_train():
+def init_train():
     # add training config in the first training
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config.txt')
@@ -130,18 +129,18 @@ def start_train():
 
 
 if __name__ == '__main__':
-    today = (2012, 5, 12)
+    today = (2010, 3, 1)
     if os.path.exists('neat-checkpoint-4'):
         with open('trained.txt') as f:
             line = f.readline()
         date = line.split(',')
         today = (int(date[0]), int(date[1]), int(date[2]))
-    start_train()
+    init_train()
     while True:
         today = utils.update_date(today)  # update df before each training
 
         # break the training loop if arrived current date
-        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2012, 6, 28):
+        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2011, 5, 30):
             break
 
         utils.get_deque(today, 'train', 'EURUSD')  # fetch new csv to data/csv

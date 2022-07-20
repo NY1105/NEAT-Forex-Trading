@@ -71,6 +71,7 @@ def to_read(today: tuple, symbol=SYMBOL):
     if last1_month < 1:
         last1_year -= 1
         last1_month += 12
+    if last2_month < 1:
         last2_year -= 1
         last2_month += 12
     if next_month > 12:
