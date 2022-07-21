@@ -116,8 +116,8 @@ def test_best_network(config, symbol='EURUSD'):
     trade.test_ai(winner_net, symbol)
 
 
-def init_train(symbol='EURUSD', today=(2010, 7, 1)):
-    utils.get_deque(today, 'test', symbol)  # retrieve data for testing
+def init_train(symbol='EURUSD', today=(2010, 7, 1), end=(2010, 12, 31)):
+    utils.get_deque(end, 'test', symbol)  # retrieve data for testing
     utils.get_deque(today, 'train', symbol)  # fetch new csv to data/csv
     # add training config in the first training
     local_dir = Path(__file__).resolve().parent
@@ -131,15 +131,16 @@ def init_train(symbol='EURUSD', today=(2010, 7, 1)):
                          str(config_path))
 
 
-def kickstart(symbol='EURUSD', today=(2010, 7, 1)):  # train with small period to large period
-    with open('trained.txt', 'w') as f:
-        f.write(f'{today[0]},{today[1]},{today[2]}')
+def kickstart(symbol='EURUSD', today=(2010, 7, 5)):  # train with small period to large period
+    if not os.path.exists('neat-checkpoint-4'):
+        with open('trained.txt', 'w') as f:
+            f.write(f'{today[0]},{today[1]},{today[2]}')
     for i in range(7):
         print(utils.get_ks_deque(i, (today[0], today[1], today[2], 0, 0, 0), symbol))
         run_neat(config)
 
 
-def main(symbol='EURUSD', today=(2010, 7, 1), end=(2021, 12, 31)):
+def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31)):
 
     if os.path.exists('neat-checkpoint-4'):  # continue unfinished training
         with open('trained.txt') as f:
@@ -157,17 +158,17 @@ def main(symbol='EURUSD', today=(2010, 7, 1), end=(2021, 12, 31)):
         utils.get_deque(today, 'train', symbol)  # fetch new csv to data/csv
 
         run_neat(config)
-
+        print(today)
         with open('trained.txt', 'w') as f:  # write the trained date to txt
             f.write(f'{today[0]},{today[1]},{today[2]}')
 
 
 if __name__ == '__main__':
     today = (2010, 7, 1)
-    end = (2012, 12, 31)
+    end = (2010, 12, 31)
     symbol = 'EURUSD'
 
-    init_train(symbol, today)
-    kickstart(symbol, today)
+    init_train(symbol, today, end)
+    # kickstart(symbol, today)
     main(symbol, today)
     test_best_network(config, symbol)

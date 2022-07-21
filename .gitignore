@@ -12,9 +12,14 @@ dukascopy/
 # read and write files
 checkpoints/*.pickle
 neat-checkpoint-4
+neat-checkpoint-5
+neat-checkpoint-6
+neat-checkpoint-7
+neat-checkpoint-8
 trained.txt
 result/*.csv
-
+data/csv/EURUSD/_EURUSD_test.csv
+data/csv/EURUSD/_EURUSD_train.csv
 
 #save .csv
 fitness_history.csv
