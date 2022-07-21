@@ -1,16 +1,14 @@
-import datetime
-import os
-from pyexpat import model
-import neat
-import pickle
-
 from indicators import Indicators
+from pathlib import Path
 from player import Player
+from pyexpat import model
+import datetime
+import neat
+import os
 import os.path
+import pickle
 import utils
 import visualize
-
-SYMBOL = 'EURUSD'
 
 
 class Trade:
@@ -122,12 +120,15 @@ def test_best_network(config, symbol='EURUSD'):
 
 def init_train():
     # add training config in the first training
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'config.txt')
+    local_dir = Path(__file__).resolve().parent
+    checkpoint_dir = local_dir / 'checkpoints'
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    config_path = local_dir / 'config.txt'
     global config
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         config_path)
+                         str(config_path))
 
 
 def kickstart(symbol='EURUSD', today=(2010, 7, 1)):
@@ -165,6 +166,6 @@ if __name__ == '__main__':
     SYMBOL = 'EURUSD'
 
     init_train()
-    kickstart(SYMBOL, today)
+    # kickstart(SYMBOL, today)
     main(SYMBOL, today)
     test_best_network(SYMBOL, config)
