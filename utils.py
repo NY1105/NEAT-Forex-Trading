@@ -187,7 +187,7 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
                 # res = pd.concat([res,i.iloc[index]])
     df = pd.DataFrame(data=res, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
     save_name = f'_{symbol}_train.csv'
-    save_path = Path('data/csv/{symbol}')
+    save_path = Path(f'data/csv/{symbol}')
     save_file = save_path / save_name
     save_path.mkdir(parents=True, exist_ok=True)
     if os.path.isfile(save_file):

@@ -5,16 +5,17 @@ import pandas as pd
 SYMBOL = 'EURUSD'
 MODE = 'test'
 
-def visualise(mode=MODE):
-    df = pd.read_csv(f'data/csv/_{SYMBOL}_{mode}.csv')
+
+def visualise(mode=MODE, symbol=SYMBOL):
+    df = pd.read_csv(f'data/csv/{symbol}/_{symbol}_{mode}.csv')
     df = df.set_index(pd.DatetimeIndex(df['Unnamed: 0'].values))
     df.drop(df[df.Volume == 0].index, inplace=True)
 
-    record = pd.read_csv(f'result/{SYMBOL}_{mode}_result.csv')
+    record = pd.read_csv(f'result/{symbol}_{mode}_result.csv')
     buy = record.drop(record[record.Type != 'Buy'].index)
-    record = pd.read_csv(f'result/{SYMBOL}_{mode}_result.csv')
+    record = pd.read_csv(f'result/{symbol}_{mode}_result.csv')
     sell = record.drop(record[record.Type != 'Sell'].index)
-    record = pd.read_csv(f'result/{SYMBOL}_{mode}_result.csv')
+    record = pd.read_csv(f'result/{symbol}_{mode}_result.csv')
     close = record.drop(record[record.Type != 'Close'].index)
     figure = go.Figure(
         data=[
@@ -54,7 +55,5 @@ def visualise(mode=MODE):
             ),
         ]
     )
-
+    figure.update_layout(xaxis_rangeslider_visible=False)
     figure.show()
-
-# visualise('train')

@@ -20,7 +20,7 @@ class Trade:
         self.traders = Player(self.df)
 
     def test_ai(self, net):
-        utils.result_checkdir(SYMBOL,'test')
+        utils.result_checkdir(SYMBOL, 'test')
         index = 0
         # self.f = open(f'{SYMBOL}_result.csv', "a")
         while True:
@@ -34,7 +34,7 @@ class Trade:
         visualize.visualise()
 
     def train_ai(self, genome, config, i):
-        utils.result_checkdir(SYMBOL,'train')
+        utils.result_checkdir(SYMBOL, 'train')
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
 
@@ -131,13 +131,11 @@ def init_train():
 
 
 def kickstart():
-    today = (2010, 3, 1)
-    if os.path.exists('neat-checkpoint-4'):
-        with open('trained.txt') as f:
-            line = f.readline()
-        date = line.split(',')
-        today = (int(date[0]), int(date[1]), int(date[2]))
     init_train()
+    for i in range(7):
+        utils.get_ks_deque(i, (2011, 12, 30, 0, 0, 0), 'EURUSD')
+        run_neat(config)
+
 
 def main():
     today = (2010, 3, 1)
@@ -146,7 +144,7 @@ def main():
             line = f.readline()
         date = line.split(',')
         today = (int(date[0]), int(date[1]), int(date[2]))
-    init_train()
+    # init_train()
     utils.get_deque(today, 'test', SYMBOL)
     while True:
         today = utils.update_date(today)  # update df before each training
@@ -161,8 +159,9 @@ def main():
 
         with open('trained.txt', 'w') as f:  # write the trained date to txt
             f.write(f'{today[0]},{today[1]},{today[2]}')
-    test_best_network(config)
 
 
 if __name__ == '__main__':
+    kickstart()
     main()
+    test_best_network(config)
