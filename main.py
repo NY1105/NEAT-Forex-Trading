@@ -162,7 +162,7 @@ def main(today):
 
 
 if __name__ == '__main__':
-    today = (2010, 3, 1)
+    today = (2010, 6, 1)
     kickstart(today)
     main(today)
     test_best_network(config)
