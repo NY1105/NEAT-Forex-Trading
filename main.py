@@ -116,7 +116,7 @@ def test_best_network(config, symbol='EURUSD'):
     trade.test_ai(winner_net, symbol)
 
 
-def init_train():
+def init_train(symbol='EURUSD', today=(2010, 7, 1)):
     utils.get_deque(today, 'test', symbol)  # retrieve data for testing
     utils.get_deque(today, 'train', symbol)  # fetch new csv to data/csv
     # add training config in the first training
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     end = (2012, 12, 31)
     symbol = 'EURUSD'
 
-    init_train()
+    init_train(symbol, today)
     kickstart(symbol, today)
     main(symbol, today)
     test_best_network(config, symbol)
