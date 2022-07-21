@@ -165,10 +165,10 @@ def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31)):
 
 if __name__ == '__main__':
     today = (2010, 7, 1)
-    end = (2010, 12, 31)
+    end = (2011, 1, 30)
     symbol = 'EURUSD'
 
     init_train(symbol, today, end)
     # kickstart(symbol, today)
-    main(symbol, today)
+    main(symbol, today,end)
     test_best_network(config, symbol)
