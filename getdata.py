@@ -3,7 +3,7 @@ from fetch import *
 from utils import daysinwhichmonth
 
 SYMBOLS = [
-    # 'AUDCAD', 
+    # 'AUDCAD',
     'AUDCHF'
     # , 'AUDJPY', 'AUDNZD', 'AUDUSD', 'CADCHF', 'CADJPY',
     # 'CHFJPY', 'EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURNZD',

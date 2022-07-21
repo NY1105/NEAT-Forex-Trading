@@ -192,7 +192,7 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
     save_path.mkdir(parents=True, exist_ok=True)
     if os.path.isfile(save_file):
         os.remove(save_file)
-    df.to_csv(save_file)
+    df.to_csv(save_file, index_label='Datetime')
 
 
 def update_date(date):
