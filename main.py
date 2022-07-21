@@ -150,7 +150,7 @@ def main(today):
         today = utils.update_date(today)  # update df before each training
 
         # break the training loop if arrived current date
-        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2011, 12, 31):
+        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(2012, 12, 31):
             break
 
         utils.get_deque(today, 'train', SYMBOL)  # fetch new csv to data/csv
@@ -162,7 +162,7 @@ def main(today):
 
 
 if __name__ == '__main__':
-    today = (2010, 6, 1)
+    today = (2010, 7, 1)
     kickstart(today)
     main(today)
     test_best_network(config)
