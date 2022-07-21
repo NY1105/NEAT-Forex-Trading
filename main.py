@@ -30,7 +30,7 @@ class Trade:
         visualize.visualise()
 
     def train_ai(self, genome, config, i, symbol='EURUSD'):
-        utils.result_checkdir(symbol, 'train')
+        # utils.result_checkdir(symbol, 'train')
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
 
@@ -60,21 +60,21 @@ class Trade:
         if decision == 0:
             if self.traders.buy(index) and not is_train:
                 print(f'Buy Price: {price[-1]}')
-            with open(f'result/{symbol}_{mode}_result.csv', 'a') as f:
-                f.write(f'{self.df["Datetime"].iloc[index]},Buy,{price[-1]},0\n')
+                with open(f'result/{symbol}_{mode}_result.csv', 'a') as f:
+                    f.write(f'{self.df["Datetime"].iloc[index]},Buy,{price[-1]},0\n')
 
         elif decision == 1:
             if self.traders.sell(index) and not is_train:
                 print(f'Sell Price: {price[-1]}')
-            with open(f'result/{symbol}_{mode}_result.csv', 'a') as f:
-                f.write(f'{self.df["Datetime"].iloc[index]},Sell,{price[-1]},0\n')
+                with open(f'result/{symbol}_{mode}_result.csv', 'a') as f:
+                    f.write(f'{self.df["Datetime"].iloc[index]},Sell,{price[-1]},0\n')
 
         elif decision == 2:
             profit = self.traders.close(index)
             if is_train:
                 self.genome.fitness += profit
-                with open(f'result/{symbol}_{mode}_result.csv', 'a') as f:
-                    f.write(f'{self.df["Datetime"].iloc[index]},Close,{price[-1]},{profit}\n')
+                # with open(f'result/{symbol}_{mode}_result.csv', 'a') as f:
+                #     f.write(f'{self.df["Datetime"].iloc[index]},Close,{price[-1]},{profit}\n')
             elif profit:
                 print(f'Close Price: {price[-1]}, Profit: {profit}')
                 with open(f'result/{symbol}_{mode}_result.csv', 'a') as f:
@@ -117,6 +117,8 @@ def test_best_network(config, symbol='EURUSD'):
 
 
 def init_train():
+    utils.get_deque(today, 'test', symbol)  # retrieve data for testing
+    utils.get_deque(today, 'train', symbol)  # fetch new csv to data/csv
     # add training config in the first training
     local_dir = Path(__file__).resolve().parent
     checkpoint_dir = local_dir / 'checkpoints'
@@ -129,22 +131,22 @@ def init_train():
                          str(config_path))
 
 
-def kickstart(symbol='EURUSD', today=(2010, 7, 1)): #train with small period to large period
+def kickstart(symbol='EURUSD', today=(2010, 7, 1)):  # train with small period to large period
     with open('trained.txt', 'w') as f:
         f.write(f'{today[0]},{today[1]},{today[2]}')
     for i in range(7):
-        utils.get_ks_deque(i, (today[0], today[1], today[2], 0, 0, 0), symbol)
+        print(utils.get_ks_deque(i, (today[0], today[1], today[2], 0, 0, 0), symbol))
         run_neat(config)
 
 
-def main(symbol='EURUSD', today=(2010, 7, 1), end=(2021, 12, 31)): 
+def main(symbol='EURUSD', today=(2010, 7, 1), end=(2021, 12, 31)):
 
-    if os.path.exists('neat-checkpoint-4'): #continue unfinished training 
+    if os.path.exists('neat-checkpoint-4'):  # continue unfinished training
         with open('trained.txt') as f:
             line = f.readline()
         date = line.split(',')
         today = (int(date[0]), int(date[1]), int(date[2]))
-    utils.get_deque(today, 'test', symbol) #retrieve data for testing
+
     while True:
         today = utils.update_date(today)  # update df before each training
 
@@ -167,5 +169,5 @@ if __name__ == '__main__':
 
     init_train()
     kickstart(symbol, today)
-    # main(symbol, today)
-    test_best_network(symbol, config)
+    main(symbol, today)
+    test_best_network(config, symbol)

@@ -151,18 +151,25 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
     start_time = datetime(now[0], now[1], now[2], now[3], now[4], now[5]) - timedelta(days=30)
     if i == 0:
         end_time = start_time + timedelta(hours=1)
+        stage = '1-hour'
     if i == 1:
         end_time = start_time + timedelta(hours=2)
+        stage = '\n==========================2-hour=========================='
     if i == 2:
         end_time = start_time + timedelta(hours=4)
+        stage = '\n==========================4-hour=========================='
     if i == 3:
         end_time = start_time + timedelta(hours=8)
+        stage = '\n==========================8-hour=========================='
     if i == 4:
         end_time = start_time + timedelta(hours=24)
+        stage = '\n==========================24-hour=========================='
     if i == 5:
         end_time = start_time + timedelta(hours=72)
+        stage = '\n==========================3-days=========================='
     if i == 6:
         end_time = start_time + timedelta(hours=168)
+        stage = '\n==========================7-days=========================='
     last2_path, last1_path, curr_path, next_path = to_read((now[0], now[1], now[2]), symbol)
     last2df = pd.read_csv(f'data/csv/{symbol}/{last2_path}')
     last1df = pd.read_csv(f'data/csv/{symbol}/{last1_path}')
@@ -193,6 +200,7 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
     if os.path.isfile(save_file):
         os.remove(save_file)
     df.to_csv(save_file, index_label='Datetime')
+    return stage
 
 
 def update_date(date):
