@@ -144,11 +144,11 @@ def get_deque(today, mode='train', symbol=SYMBOL):
     save_path.mkdir(parents=True, exist_ok=True)
     if os.path.isfile(save_file):
         os.remove(save_file)
-    df.to_csv(save_file)
+    df.to_csv(save_file, index_label='Datetime')
 
 
 def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
-    start_time = datetime(now[0],now[1],now[2],now[3],now[4],now[5]) - timedelta(days=30)
+    start_time = datetime(now[0], now[1], now[2], now[3], now[4], now[5]) - timedelta(days=30)
     if i == 0:
         end_time = start_time + timedelta(hours=1)
     if i == 1:
@@ -163,7 +163,7 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
         end_time = start_time + timedelta(hours=72)
     if i == 6:
         end_time = start_time + timedelta(hours=168)
-    last2_path, last1_path, curr_path, next_path = to_read((now[0],now[1],now[2]), symbol)
+    last2_path, last1_path, curr_path, next_path = to_read((now[0], now[1], now[2]), symbol)
     last2df = pd.read_csv(f'data/csv/{symbol}/{last2_path}')
     last1df = pd.read_csv(f'data/csv/{symbol}/{last1_path}')
     currdf = pd.read_csv(f'data/csv/{symbol}/{curr_path}')

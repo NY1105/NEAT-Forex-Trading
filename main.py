@@ -22,7 +22,7 @@ class Trade:
     def test_ai(self, net):
         utils.result_checkdir(SYMBOL, 'test')
         index = 0
-        # self.f = open(f'{SYMBOL}_result.csv', "a")
+        # self.f = open(f'{SYMBOL}_result.csv', 'a')
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, False)
@@ -58,31 +58,31 @@ class Trade:
             position = 1
         elif position < 0:
             position = -1
-        output = net.activate((pricepct[0], pricepct[1], pricepct[2], pricepct[3], pricepct[4], pricepct[5], pricepct[6], pricepct[7], pricepct[8], pricepct[9], pricepct[10], pricepct[11], pricepct[12], pricepct[13], pricepct[14], volumepct[0], volumepct[1], volumepct[2], volumepct[3], volumepct[4], volumepct[5], volumepct[6], volumepct[7], volumepct[8], volumepct[9], volumepct[10], volumepct[11], volumepct[12], volumepct[13], volumepct[14], position))
+        output = net.activate(tuple(pricepct[i] for i in range(15)) + tuple(volumepct[i] for i in range(15)) + (position, ))
         decision = output.index(max(output))
 
         if decision == 0:
             if self.traders.buy(index) and not is_train:
                 print(f'Buy Price: {price[-1]}')
-            with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
-                f.write(f'{self.df["Unnamed: 0"].iloc[index]},Buy,{price[-1]},0\n')
+            with open(f'result/{SYMBOL}_{mode}_result.csv', 'a') as f:
+                f.write(f'{self.df["Datetime"].iloc[index]},Buy,{price[-1]},0\n')
 
         elif decision == 1:
             if self.traders.sell(index) and not is_train:
                 print(f'Sell Price: {price[-1]}')
-            with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
-                f.write(f'{self.df["Unnamed: 0"].iloc[index]},Sell,{price[-1]},0\n')
+            with open(f'result/{SYMBOL}_{mode}_result.csv', 'a') as f:
+                f.write(f'{self.df["Datetime"].iloc[index]},Sell,{price[-1]},0\n')
 
         elif decision == 2:
             profit = self.traders.close(index)
             if is_train:
                 self.genome.fitness += profit
-                with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
-                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Close,{price[-1]},{profit}\n')
+                with open(f'result/{SYMBOL}_{mode}_result.csv', 'a') as f:
+                    f.write(f'{self.df["Datetime"].iloc[index]},Close,{price[-1]},{profit}\n')
             elif profit:
                 print(f'Close Price: {price[-1]}, Profit: {profit}')
-                with open(f'result/{SYMBOL}_{mode}_result.csv', "a") as f:
-                    f.write(f'{self.df["Unnamed: 0"].iloc[index]},Close,{price[-1]},{profit}\n')
+                with open(f'result/{SYMBOL}_{mode}_result.csv', 'a') as f:
+                    f.write(f'{self.df["Datetime"].iloc[index]},Close,{price[-1]},{profit}\n')
 
 
 def eval_genomes(genomes, config):
@@ -131,20 +131,18 @@ def init_train():
 
 
 def kickstart(today=(2010, 3, 1, 0, 0, 0)):
-    init_train()
     for i in range(7):
-        utils.get_ks_deque(i, (today[0],today[1],today[2],0,0,0), 'EURUSD')
+        utils.get_ks_deque(i, (today[0], today[1], today[2], 0, 0, 0), 'EURUSD')
         run_neat(config)
 
 
 def main(today):
-    
+
     if os.path.exists('neat-checkpoint-4'):
         with open('trained.txt') as f:
             line = f.readline()
         date = line.split(',')
         today = (int(date[0]), int(date[1]), int(date[2]))
-    # init_train()
     utils.get_deque(today, 'test', SYMBOL)
     while True:
         today = utils.update_date(today)  # update df before each training
@@ -162,7 +160,8 @@ def main(today):
 
 
 if __name__ == '__main__':
-    today = (2010, 7, 1)
-    kickstart(today)
+    today = (2012, 12, 1)
+    init_train()
+    # kickstart(today)
     main(today)
     test_best_network(config)

@@ -8,7 +8,7 @@ MODE = 'test'
 
 def visualise(mode=MODE, symbol=SYMBOL):
     df = pd.read_csv(f'data/csv/{symbol}/_{symbol}_{mode}.csv')
-    df = df.set_index(pd.DatetimeIndex(df['Unnamed: 0'].values))
+    df = df.set_index(pd.DatetimeIndex(df['Datetime'].values))
     df.drop(df[df.Volume == 0].index, inplace=True)
 
     record = pd.read_csv(f'result/{symbol}_{mode}_result.csv')
