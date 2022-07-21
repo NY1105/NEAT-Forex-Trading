@@ -130,15 +130,15 @@ def init_train():
                          config_path)
 
 
-def kickstart():
+def kickstart(today=(2010, 3, 1, 0, 0, 0)):
     init_train()
     for i in range(7):
-        utils.get_ks_deque(i, (2011, 12, 30, 0, 0, 0), 'EURUSD')
+        utils.get_ks_deque(i, (today[0],today[1],today[2],0,0,0), 'EURUSD')
         run_neat(config)
 
 
-def main():
-    today = (2010, 3, 1)
+def main(today):
+    
     if os.path.exists('neat-checkpoint-4'):
         with open('trained.txt') as f:
             line = f.readline()
@@ -162,6 +162,7 @@ def main():
 
 
 if __name__ == '__main__':
-    kickstart()
-    main()
+    today = (2010, 3, 1)
+    kickstart(today)
+    main(today)
     test_best_network(config)
