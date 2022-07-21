@@ -9,9 +9,11 @@ venv/
 # data/
 dukascopy/
 
-#checkpoints
-checkpoints/
+# read and write files
+checkpoints/*.pickle
 neat-checkpoint-4
+trained.txt
+result/*.csv
 
 
 #save .csv

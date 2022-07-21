@@ -20,14 +20,12 @@ class Trade:
     def test_ai(self, net, symbol='EURUSD'):
         utils.result_checkdir(symbol, 'test')
         index = 0
-        # self.f = open(f'{SYMBOL}_result.csv', 'a')
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, False, symbol)
             if index == len(self.df) - 1:
                 break
             index += 1
-        # self.f.close()
         print(self.traders.cash_total)
         visualize.visualise()
 
@@ -131,20 +129,22 @@ def init_train():
                          str(config_path))
 
 
-def kickstart(symbol='EURUSD', today=(2010, 7, 1)):
+def kickstart(symbol='EURUSD', today=(2010, 7, 1)): #train with small period to large period
+    with open('trained.txt', 'w') as f:
+        f.write(f'{today[0]},{today[1]},{today[2]}')
     for i in range(7):
         utils.get_ks_deque(i, (today[0], today[1], today[2], 0, 0, 0), symbol)
         run_neat(config)
 
 
-def main(symbol='EURUSD', today=(2010, 7, 1), end=(2021, 12, 31)):
+def main(symbol='EURUSD', today=(2010, 7, 1), end=(2021, 12, 31)): 
 
-    if os.path.exists('neat-checkpoint-4'):
+    if os.path.exists('neat-checkpoint-4'): #continue unfinished training 
         with open('trained.txt') as f:
             line = f.readline()
         date = line.split(',')
         today = (int(date[0]), int(date[1]), int(date[2]))
-    utils.get_deque(today, 'test', symbol)
+    utils.get_deque(today, 'test', symbol) #retrieve data for testing
     while True:
         today = utils.update_date(today)  # update df before each training
 
@@ -163,9 +163,9 @@ def main(symbol='EURUSD', today=(2010, 7, 1), end=(2021, 12, 31)):
 if __name__ == '__main__':
     today = (2010, 7, 1)
     end = (2012, 12, 31)
-    SYMBOL = 'EURUSD'
+    symbol = 'EURUSD'
 
     init_train()
-    # kickstart(SYMBOL, today)
-    main(SYMBOL, today)
-    test_best_network(SYMBOL, config)
+    kickstart(symbol, today)
+    # main(symbol, today)
+    test_best_network(symbol, config)
