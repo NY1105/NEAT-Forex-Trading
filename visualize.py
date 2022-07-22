@@ -1,59 +1,48 @@
-from numpy import rec
 import plotly.graph_objects as go
 import pandas as pd
+from indicators import Indicators
 
 SYMBOL = 'EURUSD'
 MODE = 'test'
 
 
-def visualise(mode=MODE, symbol=SYMBOL):
-    df = pd.read_csv(f'data/csv/{symbol}/_{symbol}_{mode}.csv')
-    df = df.set_index(pd.DatetimeIndex(df['Datetime'].values))
-    df.drop(df[df.Volume == 0].index, inplace=True)
+def visualise(cash, mode=MODE, symbol=SYMBOL):
+    df = Indicators(symbol, mode).get_df()
 
     record = pd.read_csv(f'result/{symbol}_{mode}_result.csv')
-    buy = record.drop(record[record.Type != 'Buy'].index)
-    record = pd.read_csv(f'result/{symbol}_{mode}_result.csv')
-    sell = record.drop(record[record.Type != 'Sell'].index)
+    open_buy_sell = record.drop(record[record.Type == 'Close'].index)
     record = pd.read_csv(f'result/{symbol}_{mode}_result.csv')
     close = record.drop(record[record.Type != 'Close'].index)
-    figure = go.Figure(
-        data=[
-            go.Candlestick(
-                name='Candlestick',
-                x=df.index,
-                low=df['Low'],
-                high=df['High'],
-                close=df['Close'],
-                open=df['Open'],
-                increasing_line_color='green',
-                decreasing_line_color='red'
-            ),
+
+    open_and_close = []
+    for i in range(len(close)):
+        color = 'Orange'
+        if open_buy_sell['Type'].iloc[i] == 'Buy':
+            color = 'Blue'
+        open_and_close.append(
             go.Scatter(
-                mode='markers',
-                name='Buy',
-                marker=dict(color='Blue', size=11, line=dict(width=2, color='DarkSlateGrey')),
-                line=dict(width=0),
-                y=buy['Price'],
-                x=buy['Index']
+                name=open_buy_sell['Type'].iloc[i],
+                marker=dict(color=color, size=9, line=dict(width=2, color='DarkSlateGrey')),
+                y=[open_buy_sell['Price'].iloc[i], close['Price'].iloc[i]],
+                x=[open_buy_sell['Index'].iloc[i], close['Index'].iloc[i]],
+                text=f'Profit: {close["Profit"].iloc[i]}',
+                hoverinfo='text',
+                showlegend=False
             ),
-            go.Scatter(
-                mode='markers',
-                name='Sell',
-                marker=dict(color='Orange', size=11, line=dict(width=2, color='DarkSlateGrey')),
-                line=dict(width=0),
-                y=sell['Price'],
-                x=sell['Index']
-            ),
-            go.Scatter(
-                mode='markers',
-                name='Close',
-                marker=dict(color='Lime', size=11, line=dict(width=2, color='DarkSlateGrey')),
-                line=dict(width=0),
-                y=close['Price'],
-                x=close['Index']
-            ),
-        ]
-    )
-    figure.update_layout(xaxis_rangeslider_visible=False)
+        )
+    data = [
+        go.Candlestick(
+            name='Candlestick',
+            x=df['Datetime'],
+            low=df['Low'],
+            high=df['High'],
+            close=df['Close'],
+            open=df['Open'],
+            increasing_line_color='green',
+            decreasing_line_color='red'
+        ),
+    ]
+    data += open_and_close
+    figure = go.Figure(data)
+    figure.update_layout(xaxis_rangeslider_visible=False, xaxis_title="Price", yaxis_title="Timeframe", legend_title=f"Balance: {cash}",)
     figure.show()

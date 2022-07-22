@@ -27,7 +27,7 @@ class Trade:
                 break
             index += 1
         print(self.traders.cash_total)
-        visualize.visualise()
+        visualize.visualise(self.traders.cash_total)
 
     def train_ai(self, genome, config, i, symbol='EURUSD'):
         # utils.result_checkdir(symbol, 'train')
@@ -38,6 +38,7 @@ class Trade:
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, True, symbol)
+            
             if index == len(self.df) - 1:
                 profit = self.traders.close(len(self.df) - 1)
                 self.genome.fitness += profit
@@ -145,9 +146,9 @@ def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31)):
     if os.path.exists('neat-checkpoint-4'):  # continue unfinished training
         with open('trained.txt') as f:
             line = f.readline()
-        date = line.split(',')
-        today = (int(date[0]), int(date[1]), int(date[2]))
-
+        if line != '':
+            date = line.split(',')
+            today = (int(date[0]), int(date[1]), int(date[2]))
     while True:
         today = utils.update_date(today)  # update df before each training
 
@@ -164,11 +165,11 @@ def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31)):
 
 
 if __name__ == '__main__':
-    today = (2010, 7, 1)
-    end = (2011, 1, 30)
+    today = (2011, 2, 4)
+    end = (2011, 3, 13)
     symbol = 'EURUSD'
 
     init_train(symbol, today, end)
     # kickstart(symbol, today)
-    main(symbol, today,end)
+    main(symbol, today, end)
     test_best_network(config, symbol)

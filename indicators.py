@@ -9,12 +9,12 @@ class Indicators:
     def __init__(self, symbol, mode):
 
         self.df = pd.read_csv(f'data/csv/{symbol}/_{symbol}_{mode}.csv')
-        # self.df['FastSMA'] = self.df['Close'].rolling(50, min_periods=50).mean().fillna(self.df['Close'])
-        # self.df['SlowSMA'] = self.df['Close'].rolling(100, min_periods=100).mean().fillna(self.df['Close'])
+        self.df['FastSMA'] = self.df['Close'].rolling(50, min_periods=50).mean().fillna(self.df['Close'])
+        self.df['SlowSMA'] = self.df['Close'].rolling(100, min_periods=100).mean().fillna(self.df['Close'])
         self.df['ClosePct'] = self.df['Close'].pct_change(fill_method='ffill')
         self.df['VolumePct'] = self.df['Volume'].pct_change(fill_method='ffill')
         self.df.drop(self.df[self.df.Volume == 0].index, inplace=True)
-        # self.df['RSI'] = rsi(self.df)
+        self.df['RSI'] = rsi(self.df)
         self.df.dropna(inplace=True)
         self.df.reset_index(drop=True, inplace=True)
         self.closes = deque()
