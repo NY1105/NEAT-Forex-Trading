@@ -110,13 +110,15 @@ def get_test_startend(today, testing_period=TEST):
     return (curr_year, curr_month, curr_day), (end_year, end_month, end_day)
 
 
-def get_deque(today, mode='train', symbol=SYMBOL):
-    if mode == 'train':
-        start, end = get_train_startend(today)
+def get_deque(now, day=0, hour=0, mode='train', symbol=SYMBOL):
+    now_time = datetime(now[0], now[1], now[2], now[3], now[4], now[5])
+    start_time = now_time - timedelta(hour=hour) - timedelta(days=day)
+    end_time = now_time
     if mode == 'test':
-        start, end = get_test_startend(today)
-    dstart, dend = date(start[0], start[1], start[2]), date(end[0], end[1], end[2])
-    last2_path, last1_path, curr_path, next_path = to_read(today, symbol)
+        start_time = now_time
+        end_time = now_time + timedelta(hour=hour) + timedelta(days=day)
+
+    last2_path, last1_path, curr_path, next_path = to_read(now, symbol)
     last2df = pd.read_csv(f'data/csv/{symbol}/{last2_path}')
     last1df = pd.read_csv(f'data/csv/{symbol}/{last1_path}')
     currdf = pd.read_csv(f'data/csv/{symbol}/{curr_path}')
@@ -127,16 +129,16 @@ def get_deque(today, mode='train', symbol=SYMBOL):
     for i in (last2df, last1df, currdf, nextdf):  # search
         for index in range(len(i)):
             c1, c2, c3 = (i['Datetime'].iloc[index][:10]).split('-')
-            c = date(int(c1), int(c2), int(c3))
-            if c == dstart:
+            c4 = (i['Datetime'].iloc[index][11:13])
+            c = datetime(int(c1), int(c2), int(c3), int(c4), 0, 0)
+            if c == start_time:
                 record = True
-            if c == dend:
+            if c == end_time:
                 record = False
                 break
             if record:
                 indextime.append(i['Datetime'].iloc[index])
                 res.append([i['Open'].iloc[index], i['High'].iloc[index], i['Low'].iloc[index], i['Close'].iloc[index], i['Volume'].iloc[index]])
-                # res = pd.concat([res,i.iloc[index]])
     df = pd.DataFrame(data=res, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
     save_name = f'_{symbol}_{mode}.csv'
     save_path = Path(f'data/csv/{symbol}')
@@ -147,11 +149,11 @@ def get_deque(today, mode='train', symbol=SYMBOL):
     df.to_csv(save_file, index_label='Datetime')
 
 
-def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
+def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), mode='train', symbol=SYMBOL):
     start_time = datetime(now[0], now[1], now[2], now[3], now[4], now[5]) - timedelta(days=30)
     if i == 0:
         end_time = start_time + timedelta(hours=1)
-        stage = '1-hour'
+        stage = '\n==========================1-hour=========================='
     if i == 1:
         end_time = start_time + timedelta(hours=2)
         stage = '\n==========================2-hour=========================='
@@ -191,7 +193,6 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), symbol=SYMBOL):
             if record:
                 indextime.append(i['Datetime'].iloc[index])
                 res.append([i['Open'].iloc[index], i['High'].iloc[index], i['Low'].iloc[index], i['Close'].iloc[index], i['Volume'].iloc[index]])
-                # res = pd.concat([res,i.iloc[index]])
     df = pd.DataFrame(data=res, index=indextime, columns=['Open', 'High', 'Low', 'Close', 'Volume'])
     save_name = f'_{symbol}_train.csv'
     save_path = Path(f'data/csv/{symbol}')

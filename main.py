@@ -38,7 +38,7 @@ class Trade:
         while True:
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, True, symbol)
-            
+
             if index == len(self.df) - 1:
                 profit = self.traders.close(len(self.df) - 1)
                 self.genome.fitness += profit
@@ -118,8 +118,8 @@ def test_best_network(config, symbol='EURUSD'):
 
 
 def init_train(symbol='EURUSD', today=(2010, 7, 1), end=(2010, 12, 31)):
-    utils.get_deque(end, 'test', symbol)  # retrieve data for testing
-    utils.get_deque(today, 'train', symbol)  # fetch new csv to data/csv
+    utils.get_deque(now=end, mode='test', symbol=symbol, day=7)  # retrieve data for testing
+    utils.get_deque(now=today, mode='train', symbol=symbol, day=30)  # fetch new csv to data/csv
     # add training config in the first training
     local_dir = Path(__file__).resolve().parent
     checkpoint_dir = local_dir / 'checkpoints'
@@ -137,7 +137,7 @@ def kickstart(symbol='EURUSD', today=(2010, 7, 5)):  # train with small period t
         with open('trained.txt', 'w') as f:
             f.write(f'{today[0]},{today[1]},{today[2]}')
     for i in range(7):
-        print(utils.get_ks_deque(i, (today[0], today[1], today[2], 0, 0, 0), symbol))
+        print(utils.get_ks_deque(i, now=(today[0], today[1], today[2], 0, 0, 0), mode='train', symbol=symbol))
         run_neat(config)
 
 
@@ -156,7 +156,7 @@ def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31)):
         if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(end[0], end[1], end[2]):
             break
 
-        utils.get_deque(today, 'train', symbol)  # fetch new csv to data/csv
+        utils.get_deque(now=today, mode='train', symbol=symbol, day=30)  # fetch new csv to data/csv
 
         run_neat(config)
         print(today)
