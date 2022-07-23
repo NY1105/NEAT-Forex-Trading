@@ -35,16 +35,21 @@ class Trade:
         # utils.result_checkdir(symbol, 'train')
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
-
+        self.win_count = 0
         index = 0
         while True:
+
             trader_info = self.traders.update()
             self.decision_to_action(net, index, trader_info.position, True, symbol)
 
             if index == len(self.df) - 1:
                 profit = self.traders.close(len(self.df) - 1)
                 self.genome.fitness += profit
-                print(f'Genome {i+1}: {"%.2f" %self.genome.fitness}')
+                if self.genome.fitness > 0:
+                    print(f'Genome {i+1:02d}: {"%.2f" %self.genome.fitness}')
+                    self.win_count += 1
+                else:
+                    print(f'Genome {i+1:02d}: {"%.2f" %self.genome.fitness} {"X" * (1+(abs(int(self.genome.fitness))// 1000))}')
                 break
             index += 1
 
@@ -89,6 +94,7 @@ def eval_genomes(genomes, config, symbol='EURUSD'):
         genome.fitness = 0
         trade = Trade(symbol, 'train')
         trade.train_ai(genome, config, i, symbol)
+    print(f'\nWin rate: {trade.win_count/i*100}%')
 
 
 def run_neat(config_path):
@@ -122,7 +128,9 @@ def test_best_network(config, symbol='EURUSD'):
 def init_train(symbol='EURUSD', today=(2010, 7, 1), end=(2010, 12, 31), train_days=30, train_hours=0, test_days=7, test_hours=0):
     today = tuple(datetime.date(*today[:3]).timetuple())[:6]
     if (datetime.date(*today[:3])).weekday() > 4:
-        today = tuple((datetime(*today[:3]) + datetime.timedelta(days=7 - datetime.date(*today[:3]).weekday())).timetuple())[:6]
+        today = tuple((datetime.date(*today[:3]) + datetime.timedelta(days=7 - datetime.date(*today[:3]).weekday())).timetuple())[:6]
+    if (datetime.date(*end[:3])).weekday() > 4:
+        end = tuple((datetime.date(*end[:3]) + datetime.timedelta(days=7 - datetime.date(*end[:3]).weekday())).timetuple())[:6]
     utils.get_deque(now=end, mode='test', symbol=symbol, day=test_days, hour=test_hours)  # retrieve data for testing
     utils.get_deque(now=today, mode='train', symbol=symbol, day=train_days, hour=train_hours)  # fetch new csv to data/csv
     # add training config in the first training
@@ -167,16 +175,16 @@ def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31), train_days=30,
         utils.get_deque(now=today, mode='train', symbol=symbol, day=train_days, hour=train_hours)  # fetch new csv to data/csv
 
         run_neat(config)
-        print(today)
+        print(f'\n{today}')
         with open('trained.txt', 'w') as f:  # write the trained date to txt
             f.write(f'{today[0]},{today[1]},{today[2]},{today[3]},{today[4]},{today[5]}')
 
 
 if __name__ == '__main__':
-    today = (2011, 3, 25)
-    end = (2011, 4, 7)
+    today = (2011, 5, 8)
+    end = (2011, 5, 14)
     symbol = 'EURUSD'
-    train_days, train_hours, test_days, test_hours = 0, 16, 0, 8
+    train_days, train_hours, test_days, test_hours = 0, 18, 0, 6
     init_train(symbol, today, end, train_days=train_days, train_hours=train_hours, test_days=test_days, test_hours=test_hours)
     # kickstart(symbol, today)
     main(symbol, today, end, train_days=train_days, train_hours=train_hours, test_days=test_days, test_hours=test_hours)

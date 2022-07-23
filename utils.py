@@ -212,16 +212,18 @@ def update_datetime(date, shift_days=0, shift_hours=0):
     curr_year, curr_month, curr_day = date[0], date[1], date[2]
     '''
     dt = datetime(*date[:])
-    dt = dt + timedelta(days=shift_days) + timedelta(days=shift_hours)
+    dt = dt + timedelta(days=shift_days) + timedelta(hours=shift_hours)
+    if dt.weekday() > 4:
+        dt = dt + timedelta(days=7 - dt.weekday())
     return tuple(dt.timetuple())[:6]
 
 
-def result_checkdir(symbol=SYMBOL, mode='test'):
-    save_name = f'{symbol}_{mode}_result.csv'
-    save_path = Path('result/')
-    save_file = save_path / save_name
+def result_checkdir(symbol = SYMBOL, mode = 'test'):
+    save_name=f'{symbol}_{mode}_result.csv'
+    save_path=Path('result/')
+    save_file=save_path / save_name
     if os.path.isfile(save_file):
         os.remove(save_file)
-    save_path.mkdir(parents=True, exist_ok=True)
+    save_path.mkdir(parents = True, exist_ok = True)
     with open(save_file, 'w') as f:
         f.write('Index,Type,Price,Profit\n')
