@@ -1,3 +1,4 @@
+from calendar import week, weekday
 from indicators import Indicators
 from pathlib import Path
 from player import Player
@@ -9,6 +10,7 @@ import os.path
 import pickle
 import utils
 import visualize
+import shutil
 
 
 class Trade:
@@ -117,9 +119,12 @@ def test_best_network(config, symbol='EURUSD'):
     trade.test_ai(winner_net, symbol)
 
 
-def init_train(symbol='EURUSD', today=(2010, 7, 1), end=(2010, 12, 31)):
-    utils.get_deque(now=end, mode='test', symbol=symbol, day=7)  # retrieve data for testing
-    utils.get_deque(now=today, mode='train', symbol=symbol, day=30)  # fetch new csv to data/csv
+def init_train(symbol='EURUSD', today=(2010, 7, 1), end=(2010, 12, 31), train_days=30, train_hours=0, test_days=7, test_hours=0):
+    today = tuple(datetime.date(*today[:3]).timetuple())[:6]
+    if (datetime.date(*today[:3])).weekday() > 4:
+        today = tuple((datetime(*today[:3]) + datetime.timedelta(days=7 - datetime.date(*today[:3]).weekday())).timetuple())[:6]
+    utils.get_deque(now=end, mode='test', symbol=symbol, day=test_days, hour=test_hours)  # retrieve data for testing
+    utils.get_deque(now=today, mode='train', symbol=symbol, day=train_days, hour=train_hours)  # fetch new csv to data/csv
     # add training config in the first training
     local_dir = Path(__file__).resolve().parent
     checkpoint_dir = local_dir / 'checkpoints'
@@ -130,46 +135,49 @@ def init_train(symbol='EURUSD', today=(2010, 7, 1), end=(2010, 12, 31)):
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          str(config_path))
+    return train_days, train_hours, test_days, test_hours
 
 
 def kickstart(symbol='EURUSD', today=(2010, 7, 5)):  # train with small period to large period
-    if not os.path.exists('neat-checkpoint-4'):
+    if not os.path.exists('neat-checkpoint-4') or not os.path.exists('trained.txt'):
+        shutil.rmtree('neat-checkpoint-4')
         with open('trained.txt', 'w') as f:
-            f.write(f'{today[0]},{today[1]},{today[2]}')
+            f.write(f'{today[0]},{today[1]},{today[2]},{today[3]},{today[4]},{today[5]}')
     for i in range(7):
-        print(utils.get_ks_deque(i, now=(today[0], today[1], today[2], 0, 0, 0), mode='train', symbol=symbol))
+        print(utils.get_ks_deque(i, now=tuple(datetime(*today[0:6]).timetuple())[0:6], mode='train', symbol=symbol))
         run_neat(config)
 
 
-def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31)):
-
-    if os.path.exists('neat-checkpoint-4'):  # continue unfinished training
+def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31), train_days=30, train_hours=0, test_days=7, test_hours=0):
+    today = tuple(datetime.date(*today[:]).timetuple())[:6]
+    end = tuple(datetime.date(end[0], end[1], end[2]).timetuple())[:6]
+    # if os.path.exists('neat-checkpoint-4'):  # continue unfinished training
+    if os.path.exists('trained.txt'):  # continue unfinished training
         with open('trained.txt') as f:
             line = f.readline()
-        if line != '':
+        if line != '' and os.path.exists('neat-checkpoint-4'):
             date = line.split(',')
-            today = (int(date[0]), int(date[1]), int(date[2]))
+            today = (int(date[0]), int(date[1]), int(date[2]), int(date[3]), int(date[4]), int(date[5]),)
     while True:
-        today = utils.update_date(today)  # update df before each training
+        today = utils.update_datetime(today, shift_days=test_days, shift_hours=test_hours)  # update df before each training
 
         # break the training loop if arrived current date
-        if datetime.datetime(today[0], today[1], today[2]) > datetime.datetime(end[0], end[1], end[2]):
+        if datetime.datetime(*today[:6]) > datetime.datetime(*end[:6]):
             break
-
-        utils.get_deque(now=today, mode='train', symbol=symbol, day=30)  # fetch new csv to data/csv
+        utils.get_deque(now=today, mode='train', symbol=symbol, day=train_days, hour=train_hours)  # fetch new csv to data/csv
 
         run_neat(config)
         print(today)
         with open('trained.txt', 'w') as f:  # write the trained date to txt
-            f.write(f'{today[0]},{today[1]},{today[2]}')
+            f.write(f'{today[0]},{today[1]},{today[2]},{today[3]},{today[4]},{today[5]}')
 
 
 if __name__ == '__main__':
-    today = (2011, 2, 4)
-    end = (2011, 3, 13)
+    today = (2011, 3, 25)
+    end = (2011, 4, 7)
     symbol = 'EURUSD'
-
-    init_train(symbol, today, end)
+    train_days, train_hours, test_days, test_hours = 0, 16, 0, 8
+    init_train(symbol, today, end, train_days=train_days, train_hours=train_hours, test_days=test_days, test_hours=test_hours)
     # kickstart(symbol, today)
-    main(symbol, today, end)
+    main(symbol, today, end, train_days=train_days, train_hours=train_hours, test_days=test_days, test_hours=test_hours)
     test_best_network(config, symbol)

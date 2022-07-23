@@ -111,12 +111,13 @@ def get_test_startend(today, testing_period=TEST):
 
 
 def get_deque(now, day=0, hour=0, mode='train', symbol=SYMBOL):
-    now_time = datetime(now[0], now[1], now[2], now[3], now[4], now[5])
-    start_time = now_time - timedelta(hour=hour) - timedelta(days=day)
+    now = tuple(datetime(*now[:3]).timetuple())[:6]
+    now_time = datetime(*now[:])
+    start_time = now_time - timedelta(hours=hour) - timedelta(days=day)
     end_time = now_time
     if mode == 'test':
         start_time = now_time
-        end_time = now_time + timedelta(hour=hour) + timedelta(days=day)
+        end_time = now_time + timedelta(hours=hour) + timedelta(days=day)
 
     last2_path, last1_path, curr_path, next_path = to_read(now, symbol)
     last2df = pd.read_csv(f'data/csv/{symbol}/{last2_path}')
@@ -204,22 +205,15 @@ def get_ks_deque(i, now=(2010, 3, 1, 0, 0, 0), mode='train', symbol=SYMBOL):
     return stage
 
 
-def update_date(date):
+def update_datetime(date, shift_days=0, shift_hours=0):
     '''
     add 7 days after training
     check if exceed month or year boundary
     curr_year, curr_month, curr_day = date[0], date[1], date[2]
     '''
-    year, month, day = date
-    day += 7
-    have_days = daysinwhichmonth(month, year)
-    if day > have_days:
-        day -= have_days
-        month += 1
-        if month > 12:
-            month -= 12
-            year += 1
-    return (year, month, day)
+    dt = datetime(*date[:])
+    dt = dt + timedelta(days=shift_days) + timedelta(days=shift_hours)
+    return tuple(dt.timetuple())[:6]
 
 
 def result_checkdir(symbol=SYMBOL, mode='test'):
