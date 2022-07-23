@@ -1,12 +1,7 @@
 import csv
 from datetime import datetime, date, timedelta
-from lib2to3.pygram import Symbols
-from operator import index
 from pathlib import Path
-import concurrent.futures
 import lzma
-from tkinter import END
-from xmlrpc.client import DateTime
 import pandas as pd
 import random
 import requests
@@ -16,8 +11,8 @@ import os
 import shutil
 
 # params
-START_DATE = date(2022, 6, 20)
-END_DATE = date(2022, 6, 24)
+START_DATE = date(2022, 6, 1)
+END_DATE = date(2022, 6, 30)
 SYMBOLS = ['EURUSD']  # ['AAPL.US/USD']
 PRICE_TYPES = ['BID']
 

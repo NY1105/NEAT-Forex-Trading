@@ -1,8 +1,6 @@
-from calendar import week, weekday
 from indicators import Indicators
 from pathlib import Path
 from player import Player
-from pyexpat import model
 import datetime
 import neat
 import os
@@ -35,7 +33,6 @@ class Trade:
         # utils.result_checkdir(symbol, 'train')
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         self.genome = genome
-        self.win_count = 0
         index = 0
         while True:
 
@@ -47,7 +44,6 @@ class Trade:
                 self.genome.fitness += profit
                 if self.genome.fitness > 0:
                     print(f'Genome {i+1:02d}: {"%.2f" %self.genome.fitness}')
-                    self.win_count += 1
                 else:
                     print(f'Genome {i+1:02d}: {"%.2f" %self.genome.fitness} {"X" * (1+(abs(int(self.genome.fitness))// 1000))}')
                 break
@@ -94,7 +90,8 @@ def eval_genomes(genomes, config, symbol='EURUSD'):
         genome.fitness = 0
         trade = Trade(symbol, 'train')
         trade.train_ai(genome, config, i, symbol)
-    print(f'\nWin rate: {trade.win_count/i*100}%')
+    # print(f'\nWin rate: {trade.win_count/i*100}%')
+
 
 
 def run_neat(config_path):
@@ -181,11 +178,12 @@ def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31), train_days=30,
 
 
 if __name__ == '__main__':
-    today = (2011, 5, 8)
-    end = (2011, 5, 14)
+    today = (2011, 5, 24)
+    end = (2011, 5, 26)
     symbol = 'EURUSD'
-    train_days, train_hours, test_days, test_hours = 0, 18, 0, 6
+    train_days, train_hours, test_days, test_hours = 0, 24, 0, 6  # training and testing durations
+    # recommended training to testing ratio is 4:1
     init_train(symbol, today, end, train_days=train_days, train_hours=train_hours, test_days=test_days, test_hours=test_hours)
-    # kickstart(symbol, today)
+    # kickstart(symbol, today) # training for smaller periods to larger periods
     main(symbol, today, end, train_days=train_days, train_hours=train_hours, test_days=test_days, test_hours=test_hours)
     test_best_network(config, symbol)

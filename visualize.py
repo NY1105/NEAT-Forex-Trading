@@ -46,5 +46,5 @@ def visualise(cash, mode=MODE, symbol=SYMBOL):
     ]
     data += open_and_close
     figure = go.Figure(data)
-    figure.update_layout(xaxis_rangeslider_visible=False,xaxis_title="Timeframe", yaxis_title="Price", legend_title=f"Balance: {cash}; Opens: {len(open_and_close)}",)
+    figure.update_layout(xaxis_rangeslider_visible=False, title=f'{symbol}', yaxis_title="Price", legend_title=f"Balance: {cash}; Opens: {len(open_and_close)}",)
     figure.show()

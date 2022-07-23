@@ -2,29 +2,7 @@
 /Users/ny/Documents/GitHub/DL_Trading/venv/lib/python3.9/site-packages/neat/nn/feed_forward.py :22
 node_inputs.append(self.values[i] * w + 0.0)
 '''
-autopep8==1.6.0
-certifi==2022.6.15
-charset-normalizer==2.1.0
-colorama==0.4.5
-cycler==0.11.0
-fonttools==4.34.4
-idna==3.3
-kiwisolver==1.4.3
 matplotlib==3.5.2
-neat-py==0.1
 neat-python==0.92
-numpy==1.23.0
-packaging==21.3
 pandas==1.4.3
-Pillow==9.2.0
-plotly==5.9.0
-pycodestyle==2.8.0
-pyparsing==3.0.9
-python-dateutil==2.8.2
-pytz==2022.1
 requests==2.28.1
-six==1.16.0
-tabulate==0.8.10
-tenacity==8.0.1
-toml==0.10.2
-urllib3==1.26.10
