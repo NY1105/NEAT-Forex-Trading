@@ -33,8 +33,9 @@ The current model intake the percentage change of close prices and percentage ch
 We train the FNN using a rectified linear unit (relu) activation function. 
 
 ## Results
-![Result](/img/Graph2.png)
 ![Result](/img/Graph1.png)
+![Result](/img/Graph2.png)
+![Result](/img/Graph3.png)
 ![Report](/img/StartTrain.png)
 ![Report](/img/Train.png)
 ![Report](/img/TrainReport.png)
