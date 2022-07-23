@@ -4,6 +4,9 @@
 # virtual environment
 venv/
 
+# experiments
+test.py
+del.py
 
 # training data set
 # data/
