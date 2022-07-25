@@ -17,10 +17,21 @@ def visualise(cash, mode=MODE, symbol=SYMBOL):
     close = record.drop(record[record.Type != 'Close'].index)
 
     open_and_close = []
+    buy_count = sell_count = 0
     for i in range(len(close)):
         color = 'Orange'
         if open_buy_sell['Type'].iloc[i] == 'Buy':
+            legendgroup = '1'
             color = 'Blue'
+            buy_count += 1
+            showlegend = buy_count == 1
+
+        else:
+            legendgroup = '2'
+            color = 'Orange'
+            sell_count += 1
+            showlegend = sell_count == 1
+
         open_and_close.append(
             go.Scatter(
                 name=open_buy_sell['Type'].iloc[i],
@@ -29,12 +40,14 @@ def visualise(cash, mode=MODE, symbol=SYMBOL):
                 x=[open_buy_sell['Index'].iloc[i], close['Index'].iloc[i]],
                 text=f'Profit: {close["Profit"].iloc[i]}',
                 hoverinfo='text',
-                showlegend=False
+                showlegend=showlegend,
+                legendgroup=legendgroup,
+
             ),
         )
     data = [
         go.Candlestick(
-            name='Candlestick',
+            name=f'Open: {len(open_and_close)}',
             x=df['Datetime'],
             low=df['Low'],
             high=df['High'],
@@ -46,5 +59,6 @@ def visualise(cash, mode=MODE, symbol=SYMBOL):
     ]
     data += open_and_close
     figure = go.Figure(data)
-    figure.update_layout(xaxis_rangeslider_visible=False, title=f'{symbol}', yaxis_title="Price", legend_title=f"Balance: {cash}; Opens: {len(open_and_close)}",)
+    figure.update_layout(xaxis_rangeslider_visible=False, title=f'{symbol}', yaxis_title="Price", legend_title=f"Balance: {cash}",)
+    figure.update
     figure.show()
