@@ -1,7 +1,7 @@
-'''
-/Users/ny/Documents/GitHub/DL_Trading/venv/lib/python3.9/site-packages/neat/nn/feed_forward.py :22
-node_inputs.append(self.values[i] * w + 0.0)
-'''
+
+# /Users/ny/Documents/GitHub/DL_Trading/venv/lib/python3.9/site-packages/neat/nn/feed_forward.py :22
+# node_inputs.append(self.values[i] * w + 0.0)
+
 matplotlib==3.5.2
 neat-python==0.92
 pandas==1.4.3
