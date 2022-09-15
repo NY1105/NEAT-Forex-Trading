@@ -13,7 +13,7 @@ del.py
 dukascopy/
 
 # read and write files
-checkpoints/*.pickle
+#checkpoints/*.pickle
 neat-checkpoint-4
 neat-checkpoint-5
 neat-checkpoint-6

@@ -178,7 +178,7 @@ def main(symbol='EURUSD', today=(2010, 7, 5), end=(2012, 12, 31), train_days=30,
 
 if __name__ == '__main__':
     today = (2011, 5, 24)
-    end = (2011, 5, 28)
+    end = (2011, 5, 30)
     symbol = 'EURUSD'
     train_days, train_hours, test_days, test_hours = 0, 24, 0, 6  # training and testing durations
     # recommended training to testing ratio is 4:1
